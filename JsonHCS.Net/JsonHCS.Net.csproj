@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>Levi Gillis</Authors>
+    <Company>Levi Gillis</Company>
+    <Copyright>Levi Gillis @ 2018</Copyright>
+    <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageReleaseNotes>Initial version</PackageReleaseNotes>
+    <NeutralLanguage>English</NeutralLanguage>
+    <PackageTags>Json HTTP Get Post WebClient</PackageTags>
+    <Description>JsonHCS (Json Http Client Simplified) for .Net is a HTTP Client wrapper with Json support</Description>
+    <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
+    <PackageIconUrl>http://animedev.azurewebsites.net/Nuget/JsonHCS.png</PackageIconUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+</Project>
