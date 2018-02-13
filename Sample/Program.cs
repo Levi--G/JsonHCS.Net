@@ -16,12 +16,13 @@ namespace Sample
 
         static async Task Run()
         {
-            using (JsonHCS client = new JsonHCS(new JsonHCS_Settings()
+            var settings = new JsonHCS_Settings()
             {
-                CookieSupport = true,                   //I want to support cookies and thus sessions
+                CookieSupport = true,                   //I want to support sessions and thus cookies
                 AddDefaultAcceptHeaders = true,         //Adds default acceptance headers for json types
                 UserAgent = "MyAwesomeSampleAgent"      //Because why not, this is usually ignored anyways
-            }))
+            };
+            using (JsonHCS client = new JsonHCS(settings))
             {
                 //Use it
                 const string Url = "https://www.w3schools.com/jquery/demo_ajax_json.js";    //change to actual url
