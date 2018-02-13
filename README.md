@@ -2,6 +2,8 @@
 JsonHCS (Json Http Client Simplified) for .Net is a HTTP Client wrapper with Json support.
 JSON parsing is done by the [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/11.0.1-beta3) library.
 
+![](https://img.shields.io/nuget/v/JsonHCS.Net.svg)
+
 ## Support
 
 Supported platforms: .Net Standard 1.1+
@@ -14,7 +16,7 @@ Supported http requests:
 
 ## Usage
 
-- Include the package in NuGet
+- Include the package in NuGet: https://www.nuget.org/packages/JsonHCS.Net/
 
 - Add the right usings
 
