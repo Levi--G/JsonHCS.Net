@@ -2,9 +2,7 @@
 JsonHCS (Json Http Client Simplified) for .Net is a HTTP Client wrapper with Json support.
 JSON parsing is done by the [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/11.0.1-beta3) library.
 
-<a href="https://www.nuget.org/packages/JsonHCS.Net/">
-  <img src="https://img.shields.io/nuget/v/JsonHCS.Net.svg" alt="Nuget version">
-</a>
+[![NuGet version (JsonHCS.Net)](https://img.shields.io/nuget/v/JsonHCS.Net.svg)](https://www.nuget.org/packages/JsonHCS.Net/)
 
 ## Support
 
@@ -30,11 +28,11 @@ using JsonHCSNet;
 
 ```cs
 var settings = new JsonHCS_Settings()
-            {
-                CookieSupport = true,                   //I want to support sessions and thus cookies
-                AddDefaultAcceptHeaders = true,         //Adds default acceptance headers for json types
-                UserAgent = "MyAwesomeSampleAgent"      //Because why not, this is usually ignored anyways
-            };
+{
+    CookieSupport = true,                   //I want to support sessions and thus cookies
+    AddDefaultAcceptHeaders = true,         //Adds default acceptance headers for json types
+    UserAgent = "MyAwesomeSampleAgent"      //Because why not, this is usually ignored anyways
+};
 using (JsonHCS client = new JsonHCS(settings))
 {
     //use client
@@ -44,9 +42,18 @@ using (JsonHCS client = new JsonHCS(settings))
 - Use it!
 
 ```cs
+//Use POCO's for data:
 Console.WriteLine("Get<ExpectedResponce> ToString:");
-var ERobj = await client.GetJsonAsync<ExpectedResponce>(Url); //Gets json from url and parses as the ExpectedResponce class or returns null if responce not successful
-Console.WriteLine(ERobj);
+ExpectedResponce obj = await client.GetJsonAsync<ExpectedResponce>(Url); //Gets json from url and parses as the ExpectedResponce class or returns null if responce not successful
+Console.WriteLine(obj);
+
+///Use dynamic
+dynamic obj = await client.GetJsonAsync(Url);
+Console.WriteLine(obj.firstName);
+
+//Use JObject
+var JObj = await client.GetJObjectAsync(Url);
+Console.WriteLine(JObj["firstName"]);
 ```
 
 A more complete sample can be found in the source.
