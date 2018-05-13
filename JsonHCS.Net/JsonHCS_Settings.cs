@@ -35,6 +35,11 @@ namespace JsonHCSNet
         /// </summary>
         public bool CookieSupport { get; set; }
 
+        /// <summary>
+        /// Throws an Exception upon bad return codes instead of returning null
+        /// </summary>
+        public bool ThrowOnFail { get; set; }
+
         internal void Apply(JsonHCS jsonclient)
         {
             var client = jsonclient.Client;

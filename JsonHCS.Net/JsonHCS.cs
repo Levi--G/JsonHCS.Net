@@ -17,6 +17,8 @@ namespace JsonHCSNet
         /// </summary>
         public HttpClient Client { get; private set; }
 
+        protected JsonHCS_Settings Settings { get; set; }
+
         #region Constructors
 
         /// <summary>
@@ -29,6 +31,7 @@ namespace JsonHCSNet
 
         public JsonHCS(JsonHCS_Settings settings)
         {
+            Settings = settings;
             if (settings.CookieSupport)
             {
                 handler = new HttpClientHandler();
@@ -60,6 +63,10 @@ namespace JsonHCSNet
             }
             else
             {
+                if (Settings.ThrowOnFail)
+                {
+                    throw new HttpFailException(response);
+                }
                 return null;
             }
         }
@@ -134,6 +141,10 @@ namespace JsonHCSNet
             }
             else
             {
+                if (Settings.ThrowOnFail)
+                {
+                    throw new HttpFailException(response);
+                }
                 return null;
             }
         }
@@ -216,6 +227,10 @@ namespace JsonHCSNet
             }
             else
             {
+                if (Settings.ThrowOnFail)
+                {
+                    throw new HttpFailException(response);
+                }
                 return null;
             }
         }
@@ -295,6 +310,10 @@ namespace JsonHCSNet
             }
             else
             {
+                if (Settings.ThrowOnFail)
+                {
+                    throw new HttpFailException(response);
+                }
                 return null;
             }
         }
