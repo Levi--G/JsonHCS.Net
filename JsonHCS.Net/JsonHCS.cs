@@ -10,7 +10,10 @@ namespace JsonHCSNet
 {
     public class JsonHCS : IDisposable
     {
-        private HttpClientHandler handler;
+        /// <summary>
+        /// Gets the uncerlying HttpClientHandler, USE AT OWN RISK
+        /// </summary>
+        public HttpClientHandler Handler { get; private set; }
 
         /// <summary>
         /// Gets the uncerlying HttpClient, USE AT OWN RISK
@@ -32,17 +35,60 @@ namespace JsonHCSNet
         public JsonHCS(JsonHCS_Settings settings)
         {
             Settings = settings;
+
+            Handler = settings.ClientHandlerFactory(settings);
+
             if (settings.CookieSupport)
             {
-                handler = new HttpClientHandler();
-                handler.CookieContainer = new CookieContainer();
-                Client = new HttpClient(handler);
+                Handler.CookieContainer = new CookieContainer();
             }
-            else
+
+            if (settings.UseDefaultCredentials.HasValue)
             {
-                Client = new HttpClient();
+                Handler.UseDefaultCredentials = settings.UseDefaultCredentials.Value;
             }
-            settings.Apply(this);
+
+            Client = settings.ClientFactory(settings, Handler);
+
+            if (settings.Timeout != -1)
+            {
+                Client.Timeout = TimeSpan.FromMilliseconds(settings.Timeout);
+            }
+            if (settings.AddDefaultAcceptHeaders)
+            {
+                Client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+                Client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("text/javascript"));
+                Client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("text/html"));
+                Client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("*/*"));
+            }
+            if (settings.Host != null)
+            {
+                Client.DefaultRequestHeaders.Host = settings.Host;
+            }
+            if (settings.AcceptLanguage != null)
+            {
+                Client.DefaultRequestHeaders.Add("Accept-Language", settings.AcceptLanguage);
+            }
+            if (settings.UserAgent != null)
+            {
+                Client.DefaultRequestHeaders.Add("User-Agent", settings.UserAgent);
+            }
+            if (settings.Referer != null)
+            {
+                Client.DefaultRequestHeaders.Add("Referer", settings.Referer);
+            }
+            if (settings.Origin != null)
+            {
+                Client.DefaultRequestHeaders.Add("Origin", settings.Origin);
+            }
+            if (settings.BaseAddress != null)
+            {
+                Client.BaseAddress = new Uri(settings.BaseAddress);
+            }
         }
 
         #endregion
@@ -380,7 +426,7 @@ namespace JsonHCSNet
         public void Dispose()
         {
             Client?.Dispose();
-            handler?.Dispose();
+            Handler?.Dispose();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace JsonHCSNet
@@ -36,52 +37,17 @@ namespace JsonHCSNet
         public bool CookieSupport { get; set; }
 
         /// <summary>
+        /// Enables underlying UseDefaultCredentials support
+        /// </summary>
+        public bool? UseDefaultCredentials { get; set; }
+
+        /// <summary>
         /// Throws an Exception upon bad return codes instead of returning null
         /// </summary>
         public bool ThrowOnFail { get; set; }
 
-        internal void Apply(JsonHCS jsonclient)
-        {
-            var client = jsonclient.Client;
-            if (Timeout != -1)
-            {
-                client.Timeout = TimeSpan.FromMilliseconds(Timeout);
-            }
-            if (AddDefaultAcceptHeaders)
-            {
-                client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("text/javascript"));
-                client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("text/html"));
-                client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("*/*"));
-            }
-            if (Host != null)
-            {
-                client.DefaultRequestHeaders.Host = Host;
-            }
-            if (AcceptLanguage != null)
-            {
-                client.DefaultRequestHeaders.Add("Accept-Language", AcceptLanguage);
-            }
-            if (UserAgent != null)
-            {
-                client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
-            }
-            if (Referer != null)
-            {
-                client.DefaultRequestHeaders.Add("Referer", Referer);
-            }
-            if (Origin != null)
-            {
-                client.DefaultRequestHeaders.Add("Origin", Origin);
-            }
-            if (BaseAddress != null)
-            {
-                client.BaseAddress = new Uri(BaseAddress);
-            }
-        }
+        public Func<JsonHCS_Settings, HttpClientHandler> ClientHandlerFactory { get; set; } = (settings) => { return new HttpClientHandler(); };
+
+        public Func<JsonHCS_Settings, HttpClientHandler, HttpClient> ClientFactory { get; set; } = (settings, handler) => { return new HttpClient(handler); };
     }
 }
