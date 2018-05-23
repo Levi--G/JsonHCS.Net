@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Levi Gillis</Authors>
     <Company>Levi Gillis</Company>
     <Copyright>Levi Gillis @ 2018</Copyright>
@@ -15,7 +15,8 @@
     <Description>JsonHCS (Json Http Client Simplified) for .Net is a HTTP Client wrapper with Json support</Description>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
     <PackageIconUrl>http://animedev.azurewebsites.net/Nuget/JsonHCS.png</PackageIconUrl>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/Levi--G/JsonHCS.Net/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
