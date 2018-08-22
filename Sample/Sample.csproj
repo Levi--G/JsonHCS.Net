@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JsonHCS.Net" Version="1.0.0" />
+    <ProjectReference Include="..\JsonHCS.Net\JsonHCS.Net.csproj" />
   </ItemGroup>
 
 </Project>

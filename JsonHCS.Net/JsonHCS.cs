@@ -91,7 +91,7 @@ namespace JsonHCSNet
             }
         }
 
-        #endregion
+        #endregion Constructors
 
         #region Get
 
@@ -124,9 +124,7 @@ namespace JsonHCSNet
         /// <returns></returns>
         public async Task<string> GetStringAsync(string url)
         {
-            var result = await GetRawAsync(url);
-            if (result == null) { return null; }
-            return await result.Content.ReadAsStringAsync();
+            return await (await GetRawAsync(url))?.Content?.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -166,7 +164,7 @@ namespace JsonHCSNet
             return JObject.Parse(result);
         }
 
-        #endregion
+        #endregion Get
 
         #region Post
 
@@ -202,7 +200,7 @@ namespace JsonHCSNet
         /// <returns></returns>
         public async Task<string> PostToStringAsync(string url, object data)
         {
-            return await (await PostToRawAsync(url, data)).Content.ReadAsStringAsync();
+            return await (await PostToRawAsync(url, data))?.Content?.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -252,7 +250,7 @@ namespace JsonHCSNet
             return JObject.Parse(result);
         }
 
-        #endregion
+        #endregion Post
 
         #region Put
 
@@ -288,7 +286,7 @@ namespace JsonHCSNet
         /// <returns></returns>
         public async Task<string> PutToStringAsync(string url, object data)
         {
-            return await (await PutToRawAsync(url, data)).Content.ReadAsStringAsync();
+            return await (await PutToRawAsync(url, data))?.Content?.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -338,7 +336,7 @@ namespace JsonHCSNet
             return JObject.Parse(result);
         }
 
-        #endregion
+        #endregion Put
 
         #region Delete
 
@@ -371,7 +369,7 @@ namespace JsonHCSNet
         /// <returns></returns>
         public async Task<string> DeleteToStringAsync(string url)
         {
-            return await (await DeleteToRawAsync(url)).Content.ReadAsStringAsync();
+            return await (await DeleteToRawAsync(url))?.Content?.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -421,7 +419,7 @@ namespace JsonHCSNet
             return JObject.Parse(result);
         }
 
-        #endregion
+        #endregion Delete
 
         public void Dispose()
         {
