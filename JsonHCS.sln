@@ -10,12 +10,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2C61BDA1-8AAB-4853-842A-4D9F0B80615D}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
+		Proxy.md = Proxy.md
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonHCS.Net.Proxies", "JsonHCS.Net.Proxies\JsonHCS.Net.Proxies.csproj", "{8A3862CB-3703-403A-97EC-01C14ACE5062}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProxySample", "ProxySample\ProxySample.csproj", "{723C656F-D52E-49D1-8779-800BD5D29A09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProxySample", "ProxySample\ProxySample.csproj", "{723C656F-D52E-49D1-8779-800BD5D29A09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

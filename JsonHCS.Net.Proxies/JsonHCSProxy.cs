@@ -37,7 +37,6 @@ namespace JsonHCSNet.Proxies
             var returnparam = invocation.Method.ReturnType;
             Task returntask = null;
             bool istask = typeof(Task).IsAssignableFrom(returnparam);
-            bool noreturn = returnparam == typeof(void);
             if (istask)
             {
                 if (returnparam.IsConstructedGenericType)
@@ -49,6 +48,7 @@ namespace JsonHCSNet.Proxies
                     returnparam = typeof(void);
                 }
             }
+            bool noreturn = returnparam == typeof(void);
 
             ParameterInfo[] parameters = invocation.Method.GetParameters();
             var postParameters = parameters.Where(p => HasAttribute(p, "FromBodyAttribute")).ToArray();
@@ -124,7 +124,8 @@ namespace JsonHCSNet.Proxies
             }
             else if (!noreturn)
             {
-                invocation.ReturnValue = returntask.GetType().GetProperty("Result").GetValue(returntask);
+                returntask.Wait();
+                invocation.ReturnValue = returntask.GetType().GetProperty("Result", BindingFlags.Public).GetValue(returntask);
             }
         }
 
