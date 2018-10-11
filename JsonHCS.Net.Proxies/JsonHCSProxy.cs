@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Castle.DynamicProxy;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Castle.DynamicProxy;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading.Tasks;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace JsonHCSNet.Proxies
 {
@@ -31,7 +31,7 @@ namespace JsonHCSNet.Proxies
                 route.Add(GetRoute(target.GetTypeInfo()));
                 target = (target.IsNested) ? target = target.DeclaringType : target = null;
             }
-            route.Add(GetRoute(invocation.Method) ?? invocation.Method.Name);
+            route.Add(GetRoute(invocation.Method) /*?? invocation.Method.Name*/);
             var fullroute = string.Join("/", route.Where(s => s != null).Select(s => s.Trim('/')));
 
             var returnparam = invocation.Method.ReturnType;
@@ -151,7 +151,8 @@ namespace JsonHCSNet.Proxies
 
         static string GetRoute(MemberInfo data)
         {
-            return data.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "RouteAttribute")?.ConstructorArguments.FirstOrDefault().Value as string;
+            return data.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "RouteAttribute")?.ConstructorArguments.FirstOrDefault().Value as string
+                ?? data.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "HttpGetAttribute")?.ConstructorArguments.FirstOrDefault().Value as string;
         }
     }
 }
