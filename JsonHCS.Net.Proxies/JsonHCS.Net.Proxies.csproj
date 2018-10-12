@@ -14,14 +14,14 @@
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
-    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <PackageReleaseNotes>Various bugfixes and small improvements</PackageReleaseNotes>
     <NeutralLanguage>english</NeutralLanguage>
     <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.3.1" />
-    <PackageReference Include="JsonHCS.Net" Version="1.0.3" />
+    <PackageReference Include="JsonHCS.Net" Version="1.0.4" />
   </ItemGroup>
 
 </Project>
