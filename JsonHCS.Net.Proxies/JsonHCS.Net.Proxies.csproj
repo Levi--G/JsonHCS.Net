@@ -2,11 +2,25 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Levi Gillis</Authors>
+    <Company>Levi Gillis</Company>
+    <Description>JsonHCS.Net.Proxies for .Net is a JsonHCS.Net based proxy generator for easy api definitions</Description>
+    <Copyright>Levi Gillis @ 2018</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/Levi--G/JsonHCS.Net/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
+    <PackageIconUrl>http://animedev.azurewebsites.net/Nuget/JsonHCS.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <NeutralLanguage>english</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.3.1" />
-    <PackageReference Include="JsonHCS.Net" Version="1.0.2" />
+    <PackageReference Include="JsonHCS.Net" Version="1.0.3" />
   </ItemGroup>
 
 </Project>
