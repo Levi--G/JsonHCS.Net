@@ -16,6 +16,11 @@ namespace JsonHCSNet
         /// </summary>
         public bool AddDefaultAcceptHeaders { get; set; }
 
+        /// <summary>
+        /// Adds json-only accept headers (use for ASP.NET core)
+        /// </summary>
+        public bool AddJsonAcceptHeaders { get; set; }
+
         public string Host { get; set; }
 
         public string AcceptLanguage { get; set; }

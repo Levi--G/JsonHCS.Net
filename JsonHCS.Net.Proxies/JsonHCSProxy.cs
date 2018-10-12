@@ -25,15 +25,17 @@ namespace JsonHCSNet.Proxies
         {
             var route = new List<string>();
             route.Add(baseUrl);
-            Type target = invocation.TargetType;
-            while (target != null)
             {
-                route.Add(GetRoute(target.GetTypeInfo()));
-                target = (target.IsNested) ? target = target.DeclaringType : target = null;
+                Type target = invocation.TargetType;
+                while (target != null)
+                {
+                    route.Add(GetRoute(target.GetTypeInfo()));
+                    target = (target.IsNested) ? target = target.DeclaringType : target = null;
+                }
             }
-            route.Add(GetRoute(invocation.Method) /*?? invocation.Method.Name*/);
+            route.Add(GetRoute(invocation.Method));
             var fullroute = string.Join("/", route.Where(s => s != null).Select(s => s.Trim('/')));
-
+            fullroute = fullroute.Replace("[controller]", invocation.TargetType.Name.Replace("Controller", ""));
             var returnparam = invocation.Method.ReturnType;
             Task returntask = null;
             bool istask = typeof(Task).IsAssignableFrom(returnparam);
@@ -52,7 +54,6 @@ namespace JsonHCSNet.Proxies
 
             ParameterInfo[] parameters = invocation.Method.GetParameters();
             var postParameters = parameters.Where(p => HasAttribute(p, "FromBodyAttribute")).ToArray();
-            //var queryParameters = parameters.Where(p => HasAttribute(p, "FromQueryAttribute"));
             var routeparams = Regex.Matches(fullroute, @"\{.+\}", RegexOptions.Compiled).OfType<Match>().Select(m => m.Value.Substring(1, m.Value.Length - 2)).ToArray();
             var routeParameters = parameters.Except(postParameters).Where(p => routeparams.Contains(p.Name)).ToArray();
             var queryParameters = parameters.Except(postParameters).Except(routeParameters).ToArray();
