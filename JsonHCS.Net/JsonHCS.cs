@@ -65,6 +65,13 @@ namespace JsonHCSNet
                 Client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("*/*"));
             }
+            if (settings.AddJsonAcceptHeaders)
+            {
+                Client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+                Client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("text/json"));
+            }
             if (settings.Host != null)
             {
                 Client.DefaultRequestHeaders.Host = settings.Host;

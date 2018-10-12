@@ -15,7 +15,7 @@
     <Description>JsonHCS (Json Http Client Simplified) for .Net is a HTTP Client wrapper with Json support</Description>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
     <PackageIconUrl>http://animedev.azurewebsites.net/Nuget/JsonHCS.png</PackageIconUrl>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <PackageLicenseUrl>https://raw.githubusercontent.com/Levi--G/JsonHCS.Net/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 

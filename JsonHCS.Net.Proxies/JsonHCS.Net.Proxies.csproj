@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
@@ -16,6 +16,7 @@
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
     <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
     <NeutralLanguage>english</NeutralLanguage>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
