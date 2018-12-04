@@ -131,7 +131,9 @@ namespace JsonHCSNet
         /// <returns></returns>
         public async Task<string> GetStringAsync(string url)
         {
-            return await (await GetRawAsync(url))?.Content?.ReadAsStringAsync();
+            var result = (await GetRawAsync(url))?.Content;
+            if (result == null) { return null; }
+            return await result.ReadAsStringAsync();
         }
 
         /// <summary>
