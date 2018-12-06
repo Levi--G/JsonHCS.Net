@@ -152,8 +152,7 @@ namespace JsonHCSNet.Proxies
 
         static string GetRoute(MemberInfo data)
         {
-            return data.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "RouteAttribute")?.ConstructorArguments.FirstOrDefault().Value as string
-                ?? data.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "HttpGetAttribute")?.ConstructorArguments.FirstOrDefault().Value as string;
+            return data.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "RouteAttribute" || a.AttributeType.Name == "HttpGetAttribute" || a.AttributeType.Name == "HttpPostAttribute" || a.AttributeType.Name == "HttpPutAttribute" || a.AttributeType.Name == "HttpDeleteAttribute" && a.ConstructorArguments.Count > 0 && a.ConstructorArguments.First().ArgumentType == typeof(string))?.ConstructorArguments.First().Value as string;
         }
     }
 }
