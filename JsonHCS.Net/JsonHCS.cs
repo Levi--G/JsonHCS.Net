@@ -209,7 +209,9 @@ namespace JsonHCSNet
         /// <returns></returns>
         public async Task<string> PostToStringAsync(string url, object data)
         {
-            return await (await PostToRawAsync(url, data))?.Content?.ReadAsStringAsync();
+            var result = (await PostToRawAsync(url, data))?.Content;
+            if (result == null) { return null; }
+            return await result.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -295,7 +297,9 @@ namespace JsonHCSNet
         /// <returns></returns>
         public async Task<string> PutToStringAsync(string url, object data)
         {
-            return await (await PutToRawAsync(url, data))?.Content?.ReadAsStringAsync();
+            var result = (await PutToRawAsync(url, data))?.Content;
+            if (result == null) { return null; }
+            return await result.ReadAsStringAsync();
         }
 
         /// <summary>
@@ -378,7 +382,9 @@ namespace JsonHCSNet
         /// <returns></returns>
         public async Task<string> DeleteToStringAsync(string url)
         {
-            return await (await DeleteToRawAsync(url))?.Content?.ReadAsStringAsync();
+            var result = (await DeleteToRawAsync(url))?.Content;
+            if (result == null) { return null; }
+            return await result.ReadAsStringAsync();
         }
 
         /// <summary>
