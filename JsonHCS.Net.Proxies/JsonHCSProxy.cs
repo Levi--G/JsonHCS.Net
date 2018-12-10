@@ -39,6 +39,7 @@ namespace JsonHCSNet.Proxies
             var returnparam = invocation.Method.ReturnType;
             Task returntask = null;
             bool istask = typeof(Task).IsAssignableFrom(returnparam);
+            //while (GetAllTypes(returnparam).Any(t=> t.Name == "Task" || t.Name == "IActionResult"|| t.Name == "ActionResult"))
             if (istask)
             {
                 if (returnparam.IsConstructedGenericType)
@@ -58,20 +59,25 @@ namespace JsonHCSNet.Proxies
             var routeParameters = parameters.Except(postParameters).Where(p => routeparams.Contains(p.Name)).ToArray();
             var queryParameters = parameters.Except(postParameters).Except(routeParameters).ToArray();
 
-            var postArgument = GetParameterValues(postParameters, invocation.Arguments).SingleOrDefault();
+            var postArgument = GetParameterValues(postParameters, invocation.Arguments).FirstOrDefault();
 
             if (routeParameters != null && routeParameters.Length > 0)
             {
                 foreach (var param in routeParameters)
                 {
-                    var value = GetParameterValue(param, invocation.Arguments);
+                    var value = GetParameterValue(param, invocation.Arguments).ToString();
                     fullroute = fullroute.Replace($"{{{param.Name}}}", value);
                 }
             }
 
             if (queryParameters != null && queryParameters.Length > 0)
             {
-                fullroute += "?" + string.Join("&", GetParameterValues(queryParameters, invocation.Arguments));
+                fullroute += "?" + string.Join("&", queryParameters.Select(q =>
+                {
+                    var v = GetParameterValue(q, invocation.Arguments);
+                    if (v == null) { return null; }
+                    return $"{q.Name}={v}";
+                }).Where(s => s != null));
             }
 
             if (HasAttribute(invocation.Method, "HttpPostAttribute"))
@@ -130,14 +136,14 @@ namespace JsonHCSNet.Proxies
             }
         }
 
-        static IEnumerable<string> GetParameterValues(ParameterInfo[] parameters, object[] args)
+        static IEnumerable<object> GetParameterValues(ParameterInfo[] parameters, object[] args)
         {
             return parameters.Select(p => GetParameterValue(p, args));
         }
 
-        static string GetParameterValue(ParameterInfo p, object[] args)
+        static object GetParameterValue(ParameterInfo p, object[] args)
         {
-            return (args.Length > p.Position ? args[p.Position] : null ?? p.DefaultValue).ToString();
+            return (args.Length > p.Position ? args[p.Position] : null ?? p.DefaultValue);
         }
 
         static T GetAttribute<T>(MemberInfo data) where T : Attribute
@@ -152,7 +158,24 @@ namespace JsonHCSNet.Proxies
 
         static string GetRoute(MemberInfo data)
         {
-            return data.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "RouteAttribute" || a.AttributeType.Name == "HttpGetAttribute" || a.AttributeType.Name == "HttpPostAttribute" || a.AttributeType.Name == "HttpPutAttribute" || a.AttributeType.Name == "HttpDeleteAttribute" && a.ConstructorArguments.Count > 0 && a.ConstructorArguments.First().ArgumentType == typeof(string))?.ConstructorArguments.First().Value as string;
+            var route = data.CustomAttributes.FirstOrDefault(a => (a.AttributeType.Name == "RouteAttribute" || a.AttributeType.Name == "HttpGetAttribute" || a.AttributeType.Name == "HttpPostAttribute" || a.AttributeType.Name == "HttpPutAttribute" || a.AttributeType.Name == "HttpDeleteAttribute") && a.ConstructorArguments.Count > 0 && a.ConstructorArguments.First().ArgumentType == typeof(string));
+            return route?.ConstructorArguments.First().Value as string;
         }
+
+        //static IEnumerable<Type> GetAllTypes(Type type)
+        //{
+        //    Type baseType = type.GetTypeInfo().BaseType;
+        //    if (baseType != null)
+        //    {
+        //        foreach (var t in GetAllTypes(baseType))
+        //        {
+        //            yield return t;
+        //        }
+        //    }
+        //    foreach (var t in type.GetInterfaces().SelectMany(i => GetAllTypes(i)))
+        //    {
+        //        yield return t;
+        //    }
+        //}
     }
 }

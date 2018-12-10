@@ -18,6 +18,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonHCS.Net.Proxies", "Json
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProxySample", "ProxySample\ProxySample.csproj", "{723C656F-D52E-49D1-8779-800BD5D29A09}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonHCS.Net.Proxytests", "JsonHCS.Net.Proxytests\JsonHCS.Net.Proxytests.csproj", "{82B1D0E9-7995-465B-A565-1265BA1F7123}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonHCS.Net.Tests", "JsonHCS.Net.Tests\JsonHCS.Net.Tests.csproj", "{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +44,14 @@ Global
 		{723C656F-D52E-49D1-8779-800BD5D29A09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{723C656F-D52E-49D1-8779-800BD5D29A09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{723C656F-D52E-49D1-8779-800BD5D29A09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82B1D0E9-7995-465B-A565-1265BA1F7123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82B1D0E9-7995-465B-A565-1265BA1F7123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82B1D0E9-7995-465B-A565-1265BA1F7123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82B1D0E9-7995-465B-A565-1265BA1F7123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -17,6 +17,7 @@
     <PackageIconUrl>http://animedev.azurewebsites.net/Nuget/JsonHCS.png</PackageIconUrl>
     <Version>1.0.6</Version>
     <PackageLicenseUrl>https://raw.githubusercontent.com/Levi--G/JsonHCS.Net/master/LICENSE</PackageLicenseUrl>
+    <RootNamespace>JsonHCSNet</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
