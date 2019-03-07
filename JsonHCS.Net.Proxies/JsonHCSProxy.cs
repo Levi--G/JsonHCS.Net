@@ -13,7 +13,7 @@ namespace JsonHCSNet.Proxies
     internal class JsonHCSProxy : IInterceptor
     {
         JsonHCS jsonHCS;
-        string baseUrl;
+        readonly string baseUrl;
 
         internal JsonHCSProxy(JsonHCS jsonHCS, string baseUrl)
         {
@@ -23,8 +23,7 @@ namespace JsonHCSNet.Proxies
 
         public void Intercept(IInvocation invocation)
         {
-            var route = new List<string>();
-            route.Add(baseUrl);
+            var route = new List<string> { baseUrl };
             {
                 Type target = invocation.TargetType;
                 while (target != null)
@@ -76,7 +75,7 @@ namespace JsonHCSNet.Proxies
                 {
                     var v = GetParameterValue(q, invocation.Arguments);
                     if (v == null) { return null; }
-                    return $"{q.Name}={v}";
+                    return $"{q.Name}={System.Net.WebUtility.UrlEncode(v.ToString())}";
                 }).Where(s => s != null));
             }
 

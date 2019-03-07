@@ -21,7 +21,7 @@ namespace JsonHCSNet.Proxytests
             [Route("{id}")]
             public abstract Task<Post> Get(int id);
 
-            public abstract Task<Post> Get2([FromQuery] int id);
+            public abstract Task<Post[]> GetPosts([FromQuery] int userId);
 
             [HttpPost]
             public abstract Task<Post> AddPost([FromBody]PostBase value);
@@ -74,7 +74,7 @@ namespace JsonHCSNet.Proxytests
         [TestMethod]
         public void TestGetQueryAttribute()
         {
-            Assert.IsTrue(GetTestAPI().Get(2).Result.Id == 2);
+            Assert.IsTrue(this.GetTestAPI().GetPosts(2).Result[0].UserId == 2);
         }
 
         [TestMethod]

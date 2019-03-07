@@ -7,7 +7,7 @@ namespace JsonHCSNet.Proxies
 {
     public class JsonHCSProxyGenerator
     {
-        JsonHCS jsonHCS;
+        readonly JsonHCS jsonHCS;
         ProxyGenerator proxyGenerator;
 
         public JsonHCSProxyGenerator(JsonHCS jsonHCS = null)
