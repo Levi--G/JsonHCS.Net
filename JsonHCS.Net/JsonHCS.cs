@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -178,16 +179,14 @@ namespace JsonHCSNet
         #region Post
 
         /// <summary>
-        /// Posts the message as Json and gets the responce if successful else returns null
+        /// Posts any HttpContent to the specified url
         /// </summary>
         /// <param name="url">The url to POST</param>
+        /// <param name="data">The data to POST</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> PostToRawAsync(string url, object data)
+        public async Task<HttpResponseMessage> PostContentAsync(string url, HttpContent data)
         {
-            string json = JsonConvert.SerializeObject(data);
-            var content = new StringContent(json);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await Client.PostAsync(url, content);
+            var response = await Client.PostAsync(url, data);
             if (response.IsSuccessStatusCode)
             {
                 return response;
@@ -200,6 +199,19 @@ namespace JsonHCSNet
                 }
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Posts the message as Json and gets the responce if successful else returns null
+        /// </summary>
+        /// <param name="url">The url to POST</param>
+        /// <returns></returns>
+        public async Task<HttpResponseMessage> PostToRawAsync(string url, object data)
+        {
+            string json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return await PostContentAsync(url, content);
         }
 
         /// <summary>
@@ -435,6 +447,55 @@ namespace JsonHCSNet
         }
 
         #endregion Delete
+
+        #region File
+
+        /// <summary>
+        /// Gets a raw stream from the url (non buffered)
+        /// </summary>
+        /// <param name="url">The url to GET</param>
+        /// <returns></returns>
+        public async Task<Stream> GetStreamAsync(string url)
+        {
+            return await Client.GetStreamAsync(url);
+        }
+
+        /// <summary>
+        /// Gets and reads bytes from the url
+        /// </summary>
+        /// <param name="url">The url to GET</param>
+        /// <returns></returns>
+        public async Task<byte[]> GetBytesAsync(string url)
+        {
+            return await Client.GetByteArrayAsync(url);
+        }
+
+        /// <summary>
+        /// Gets a data stream from the url (buffered in a MemoryStream)
+        /// </summary>
+        /// <param name="url">The url to GET</param>
+        /// <returns></returns>
+        public async Task<MemoryStream> GetMemoryStreamAsync(string url)
+        {
+            var result = await GetStreamAsync(url);
+            if (result == null) { return null; }
+            var s = new MemoryStream();
+            await result.CopyToAsync(s);
+            return s;
+        }
+
+        /// <summary>
+        /// Uploads a Stream to the url
+        /// </summary>
+        /// <param name="url">The url to POST</param>
+        /// <param name="uploadStream">The Stream to POST</param>
+        /// <returns></returns>
+        public Task UploadStreamAsync(string url, Stream uploadStream)
+        {
+            return PostContentAsync(url, new StreamContent(uploadStream));
+        }
+
+        #endregion File
 
         public void Dispose()
         {
