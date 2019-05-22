@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -22,6 +23,8 @@ namespace JsonHCSNet
         public HttpClient Client { get; private set; }
 
         protected JsonHCS_Settings Settings { get; set; }
+
+        public event EventHandler<Exception> OnErrorCaught;
 
         #region Constructors
 
@@ -107,22 +110,14 @@ namespace JsonHCSNet
         /// Gets the raw HttpResponseMessage if successful else returns null
         /// </summary>
         /// <param name="url">The url to GET</param>
+        /// <param name="headers">Optional headers to send with the request</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> GetRawAsync(string url)
+        public Task<HttpResponseMessage> GetRawAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var response = await Client.GetAsync(url);
-            if (response.IsSuccessStatusCode)
+            return RunInternalAsync(() =>
             {
-                return response;
-            }
-            else
-            {
-                if (Settings.ThrowOnFail)
-                {
-                    throw new HttpFailException(response);
-                }
-                return null;
-            }
+                return SendInternalAsync(HttpMethod.Get, url, null, headers);
+            });
         }
 
         /// <summary>
@@ -130,11 +125,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to GET</param>
         /// <returns></returns>
-        public async Task<string> GetStringAsync(string url)
+        public Task<string> GetStringAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = (await GetRawAsync(url))?.Content;
-            if (result == null) { return null; }
-            return await result.ReadAsStringAsync();
+            return RunInternalAsync(async () =>
+            {
+                var result = (await GetRawAsync(url, headers))?.Content;
+                if (result == null) { return null; }
+                return await result.ReadAsStringAsync();
+            });
         }
 
         /// <summary>
@@ -142,11 +140,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to GET</param>
         /// <returns></returns>
-        public async Task<object> GetJsonAsync(string url)
+        public Task<object> GetJsonAsync(string url, Type type = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await GetStringAsync(url);
-            if (result == null) { return null; }
-            return JsonConvert.DeserializeObject(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await GetStringAsync(url, headers);
+                if (result == null) { return null; }
+                return DeserializeJsonInternal(result, type);
+            });
         }
 
         /// <summary>
@@ -155,11 +156,14 @@ namespace JsonHCSNet
         /// <typeparam name="T">The type to convert to</typeparam>
         /// <param name="url">The url to GET</param>
         /// <returns></returns>
-        public async Task<T> GetJsonAsync<T>(string url)
+        public Task<T> GetJsonAsync<T>(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await GetStringAsync(url);
-            if (result == null) { return default(T); }
-            return JsonConvert.DeserializeObject<T>(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await GetStringAsync(url, headers);
+                if (result == null) { return default(T); }
+                return DeserializeJsonInternal<T>(result);
+            });
         }
 
         /// <summary>
@@ -167,11 +171,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to GET</param>
         /// <returns></returns>
-        public async Task<JObject> GetJObjectAsync(string url)
+        public Task<JObject> GetJObjectAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await GetStringAsync(url);
-            if (result == null) { return null; }
-            return JObject.Parse(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await GetStringAsync(url, headers);
+                if (result == null) { return null; }
+                return JObject.Parse(result);
+            });
         }
 
         #endregion Get
@@ -184,21 +191,12 @@ namespace JsonHCSNet
         /// <param name="url">The url to POST</param>
         /// <param name="data">The data to POST</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> PostContentAsync(string url, HttpContent data)
+        public Task<HttpResponseMessage> PostContentAsync(string url, HttpContent data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var response = await Client.PostAsync(url, data);
-            if (response.IsSuccessStatusCode)
+            return RunInternalAsync(() =>
             {
-                return response;
-            }
-            else
-            {
-                if (Settings.ThrowOnFail)
-                {
-                    throw new HttpFailException(response);
-                }
-                return null;
-            }
+                return SendInternalAsync(HttpMethod.Post, url, data, headers);
+            });
         }
 
         /// <summary>
@@ -206,12 +204,15 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to POST</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> PostToRawAsync(string url, object data)
+        public Task<HttpResponseMessage> PostToRawAsync(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            string json = JsonConvert.SerializeObject(data);
-            var content = new StringContent(json);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            return await PostContentAsync(url, content);
+            return RunInternalAsync(async () =>
+            {
+                string json = SerializeJsonInternal(data);
+                var content = new StringContent(json);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                return await PostContentAsync(url, content, headers);
+            });
         }
 
         /// <summary>
@@ -219,11 +220,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to POST</param>
         /// <returns></returns>
-        public async Task<string> PostToStringAsync(string url, object data)
+        public Task<string> PostToStringAsync(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = (await PostToRawAsync(url, data))?.Content;
-            if (result == null) { return null; }
-            return await result.ReadAsStringAsync();
+            return RunInternalAsync(async () =>
+            {
+                var result = (await PostToRawAsync(url, data, headers))?.Content;
+                if (result == null) { return null; }
+                return await result.ReadAsStringAsync();
+            });
         }
 
         /// <summary>
@@ -231,9 +235,9 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to POST</param>
         /// <returns></returns>
-        public async Task PostAsync(string url, object data)
+        public async Task PostAsync(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            await PostToRawAsync(url, data);
+            await PostToRawAsync(url, data, headers);
         }
 
         /// <summary>
@@ -241,11 +245,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to POST</param>
         /// <returns></returns>
-        public async Task<object> PostToJsonAsync(string url, object data)
+        public Task<object> PostToJsonAsync(string url, object data, Type type = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await PostToStringAsync(url, data);
-            if (result == null) { return null; }
-            return JsonConvert.DeserializeObject(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await PostToStringAsync(url, data, headers);
+                if (result == null) { return null; }
+                return DeserializeJsonInternal(result, type);
+            });
         }
 
         /// <summary>
@@ -254,11 +261,14 @@ namespace JsonHCSNet
         /// <typeparam name="T">The type to convert to</typeparam>
         /// <param name="url">The url to POST</param>
         /// <returns></returns>
-        public async Task<T> PostToJsonAsync<T>(string url, object data)
+        public Task<T> PostToJsonAsync<T>(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await PostToStringAsync(url, data);
-            if (result == null) { return default(T); }
-            return JsonConvert.DeserializeObject<T>(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await PostToStringAsync(url, data, headers);
+                if (result == null) { return default(T); }
+                return DeserializeJsonInternal<T>(result);
+            });
         }
 
         /// <summary>
@@ -266,11 +276,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to POST</param>
         /// <returns></returns>
-        public async Task<JObject> PostToJObjectAsync(string url, object data)
+        public Task<JObject> PostToJObjectAsync(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await PostToStringAsync(url, data);
-            if (result == null) { return null; }
-            return JObject.Parse(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await PostToStringAsync(url, data, headers);
+                if (result == null) { return null; }
+                return JObject.Parse(result);
+            });
         }
 
         #endregion Post
@@ -278,28 +291,33 @@ namespace JsonHCSNet
         #region Put
 
         /// <summary>
+        /// Posts any HttpContent to the specified url
+        /// </summary>
+        /// <param name="url">The url to POST</param>
+        /// <param name="data">The data to POST</param>
+        /// <returns></returns>
+        public Task<HttpResponseMessage> PutContentAsync(string url, HttpContent data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        {
+            return RunInternalAsync(() =>
+            {
+                return SendInternalAsync(HttpMethod.Put, url, data, headers);
+            });
+        }
+
+        /// <summary>
         /// Puts the message as Json and gets the responce if successful else returns null
         /// </summary>
         /// <param name="url">The url to PUT</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> PutToRawAsync(string url, object data)
+        public Task<HttpResponseMessage> PutToRawAsync(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            string json = JsonConvert.SerializeObject(data);
-            var content = new StringContent(json);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await Client.PutAsync(url, content);
-            if (response.IsSuccessStatusCode)
+            return RunInternalAsync(() =>
             {
-                return response;
-            }
-            else
-            {
-                if (Settings.ThrowOnFail)
-                {
-                    throw new HttpFailException(response);
-                }
-                return null;
-            }
+                string json = SerializeJsonInternal(data);
+                var content = new StringContent(json);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                return PutContentAsync(url, content, headers);
+            });
         }
 
         /// <summary>
@@ -307,11 +325,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to PUT</param>
         /// <returns></returns>
-        public async Task<string> PutToStringAsync(string url, object data)
+        public Task<string> PutToStringAsync(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = (await PutToRawAsync(url, data))?.Content;
-            if (result == null) { return null; }
-            return await result.ReadAsStringAsync();
+            return RunInternalAsync(async () =>
+            {
+                var result = (await PutToRawAsync(url, data, headers))?.Content;
+                if (result == null) { return null; }
+                return await result.ReadAsStringAsync();
+            });
         }
 
         /// <summary>
@@ -319,9 +340,9 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to PUT</param>
         /// <returns></returns>
-        public async Task PutAsync(string url, object data)
+        public async Task PutAsync(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            await PutToRawAsync(url, data);
+            await PutToRawAsync(url, data, headers);
         }
 
         /// <summary>
@@ -329,11 +350,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to PUT</param>
         /// <returns></returns>
-        public async Task<object> PutToJsonAsync(string url, object data)
+        public Task<object> PutToJsonAsync(string url, object data, Type type = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await PutToStringAsync(url, data);
-            if (result == null) { return null; }
-            return JsonConvert.DeserializeObject(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await PutToStringAsync(url, data, headers);
+                if (result == null) { return null; }
+                return DeserializeJsonInternal(result, type);
+            });
         }
 
         /// <summary>
@@ -342,11 +366,14 @@ namespace JsonHCSNet
         /// <typeparam name="T">The type to convert to</typeparam>
         /// <param name="url">The url to PUT</param>
         /// <returns></returns>
-        public async Task<T> PutToJsonAsync<T>(string url, object data)
+        public Task<T> PutToJsonAsync<T>(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await PutToStringAsync(url, data);
-            if (result == null) { return default(T); }
-            return JsonConvert.DeserializeObject<T>(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await PutToStringAsync(url, data, headers);
+                if (result == null) { return default(T); }
+                return DeserializeJsonInternal<T>(result);
+            });
         }
 
         /// <summary>
@@ -354,11 +381,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to PUT</param>
         /// <returns></returns>
-        public async Task<JObject> PutToJObjectAsync(string url, object data)
+        public Task<JObject> PutToJObjectAsync(string url, object data, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await PutToStringAsync(url, data);
-            if (result == null) { return null; }
-            return JObject.Parse(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await PutToStringAsync(url, data, headers);
+                if (result == null) { return null; }
+                return JObject.Parse(result);
+            });
         }
 
         #endregion Put
@@ -370,21 +400,12 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to DELETE</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> DeleteToRawAsync(string url)
+        public Task<HttpResponseMessage> DeleteToRawAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var response = await Client.DeleteAsync(url);
-            if (response.IsSuccessStatusCode)
+            return RunInternalAsync(() =>
             {
-                return response;
-            }
-            else
-            {
-                if (Settings.ThrowOnFail)
-                {
-                    throw new HttpFailException(response);
-                }
-                return null;
-            }
+                return SendInternalAsync(HttpMethod.Delete, url, null, headers);
+            });
         }
 
         /// <summary>
@@ -392,11 +413,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to DELETE</param>
         /// <returns></returns>
-        public async Task<string> DeleteToStringAsync(string url)
+        public Task<string> DeleteToStringAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = (await DeleteToRawAsync(url))?.Content;
-            if (result == null) { return null; }
-            return await result.ReadAsStringAsync();
+            return RunInternalAsync(async () =>
+            {
+                var result = (await DeleteToRawAsync(url, headers))?.Content;
+                if (result == null) { return null; }
+                return await result.ReadAsStringAsync();
+            });
         }
 
         /// <summary>
@@ -404,9 +428,9 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to DELETE</param>
         /// <returns></returns>
-        public async Task DeleteAsync(string url)
+        public async Task DeleteAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            await DeleteToRawAsync(url);
+            await DeleteToRawAsync(url, headers);
         }
 
         /// <summary>
@@ -414,11 +438,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to DELETE</param>
         /// <returns></returns>
-        public async Task<object> DeleteToJsonAsync(string url)
+        public Task<object> DeleteToJsonAsync(string url, Type type = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await DeleteToStringAsync(url);
-            if (result == null) { return null; }
-            return JsonConvert.DeserializeObject(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await DeleteToStringAsync(url, headers);
+                if (result == null) { return null; }
+                return DeserializeJsonInternal(result, type);
+            });
         }
 
         /// <summary>
@@ -427,11 +454,14 @@ namespace JsonHCSNet
         /// <typeparam name="T">The type to convert to</typeparam>
         /// <param name="url">The url to DELETE</param>
         /// <returns></returns>
-        public async Task<T> DeleteToJsonAsync<T>(string url)
+        public Task<T> DeleteToJsonAsync<T>(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await DeleteToStringAsync(url);
-            if (result == null) { return default(T); }
-            return JsonConvert.DeserializeObject<T>(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await DeleteToStringAsync(url, headers);
+                if (result == null) { return default(T); }
+                return DeserializeJsonInternal<T>(result);
+            });
         }
 
         /// <summary>
@@ -439,11 +469,14 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to DELETE</param>
         /// <returns></returns>
-        public async Task<JObject> DeleteToJObjectAsync(string url)
+        public Task<JObject> DeleteToJObjectAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            var result = await DeleteToStringAsync(url);
-            if (result == null) { return null; }
-            return JObject.Parse(result);
+            return RunInternalAsync(async () =>
+            {
+                var result = await DeleteToStringAsync(url, headers);
+                if (result == null) { return null; }
+                return JObject.Parse(result);
+            });
         }
 
         #endregion Delete
@@ -455,9 +488,12 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to GET</param>
         /// <returns></returns>
-        public async Task<Stream> GetStreamAsync(string url)
+        public Task<Stream> GetStreamAsync(string url)
         {
-            return await Client.GetStreamAsync(url);
+            return RunInternalAsync(async () =>
+            {
+                return await Client.GetStreamAsync(url);
+            });
         }
 
         /// <summary>
@@ -465,9 +501,12 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to GET</param>
         /// <returns></returns>
-        public async Task<byte[]> GetBytesAsync(string url)
+        public Task<byte[]> GetBytesAsync(string url)
         {
-            return await Client.GetByteArrayAsync(url);
+            return RunInternalAsync(async () =>
+            {
+                return await Client.GetByteArrayAsync(url);
+            });
         }
 
         /// <summary>
@@ -475,13 +514,17 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to GET</param>
         /// <returns></returns>
-        public async Task<MemoryStream> GetMemoryStreamAsync(string url)
+        public Task<MemoryStream> GetMemoryStreamAsync(string url)
         {
-            var result = await GetStreamAsync(url);
-            if (result == null) { return null; }
-            var s = new MemoryStream();
-            await result.CopyToAsync(s);
-            return s;
+            return RunInternalAsync(async () =>
+            {
+                var result = await GetStreamAsync(url);
+                if (result == null) { return null; }
+                var s = new MemoryStream();
+                await result.CopyToAsync(s);
+                result.Dispose();
+                return s;
+            });
         }
 
         /// <summary>
@@ -492,10 +535,114 @@ namespace JsonHCSNet
         /// <returns></returns>
         public Task UploadStreamAsync(string url, Stream uploadStream)
         {
-            return PostContentAsync(url, new StreamContent(uploadStream));
+            return RunInternalAsync(async () =>
+            {
+                await PostContentAsync(url, new StreamContent(uploadStream));
+            });
         }
 
         #endregion File
+
+        #region Helpers
+
+        private Task<HttpResponseMessage> SendInternalAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        {
+            return SendInternalAsync(MakeRequestInternal(method, url, content, headers));
+        }
+
+        private HttpRequestMessage MakeRequestInternal(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        {
+            var req = new HttpRequestMessage(method, url);
+            if (content != null)
+            {
+                req.Content = content;
+            }
+            if (headers != null)
+            {
+                foreach (var header in headers)
+                {
+                    req.Headers.Add(header.Key, header.Value);
+                }
+            }
+            return req;
+        }
+
+        private async Task<HttpResponseMessage> SendInternalAsync(HttpRequestMessage request)
+        {
+            var response = await Client.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                return response;
+            }
+            else
+            {
+                if (Settings.ThrowOnFail)
+                {
+                    throw new HttpFailException(response);
+                }
+                else
+                {
+                    OnErrorCaught?.Invoke(this, new HttpFailException(response));
+                }
+            }
+            return null;
+        }
+
+        private async Task<T> RunInternalAsync<T>(Func<Task<T>> torun)
+        {
+            if (Settings.ThrowOnFail)
+            {
+                return await torun();
+            }
+            else
+            {
+                try
+                {
+                    return await torun();
+                }
+                catch (Exception e)
+                {
+                    OnErrorCaught?.Invoke(this, e);
+                }
+            }
+            return default(T);
+        }
+
+        private async Task RunInternalAsync(Func<Task> torun)
+        {
+            if (Settings.ThrowOnFail)
+            {
+                await torun();
+            }
+            else
+            {
+                try
+                {
+                    await torun();
+                }
+                catch (Exception e)
+                {
+                    OnErrorCaught?.Invoke(this, e);
+                }
+            }
+        }
+
+        string SerializeJsonInternal(object data)
+        {
+            return JsonConvert.SerializeObject(data, Settings.JsonEncodingSettings);
+        }
+
+        object DeserializeJsonInternal(string json, Type type = null)
+        {
+            return JsonConvert.DeserializeObject(json, type, Settings.JsonDecodingSettings);
+        }
+
+        T DeserializeJsonInternal<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json, Settings.JsonDecodingSettings);
+        }
+
+        #endregion
 
         public void Dispose()
         {

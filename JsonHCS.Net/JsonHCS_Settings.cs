@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
@@ -50,6 +51,10 @@ namespace JsonHCSNet
         /// Throws an Exception upon bad return codes instead of returning null
         /// </summary>
         public bool ThrowOnFail { get; set; }
+
+        public JsonSerializerSettings JsonDecodingSettings { get; set; }
+
+        public JsonSerializerSettings JsonEncodingSettings { get; set; }
 
         public Func<JsonHCS_Settings, HttpClientHandler> ClientHandlerFactory { get; set; } = (settings) => { return new HttpClientHandler(); };
 
