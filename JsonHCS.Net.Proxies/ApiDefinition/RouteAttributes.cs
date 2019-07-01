@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JsonHCSNet.Proxies.ApiDefinition
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class RouteAttribute : Attribute
     {
         public string Template { get; set; }
@@ -13,6 +13,8 @@ namespace JsonHCSNet.Proxies.ApiDefinition
         {
             Template = template;
         }
+
+        public RouteAttribute() { }
     }
 
     public class HttpGetAttribute : RouteAttribute
@@ -20,6 +22,8 @@ namespace JsonHCSNet.Proxies.ApiDefinition
         public HttpGetAttribute(string template) : base(template)
         {
         }
+
+        public HttpGetAttribute() { }
     }
 
     public class HttpPostAttribute : RouteAttribute
@@ -27,6 +31,8 @@ namespace JsonHCSNet.Proxies.ApiDefinition
         public HttpPostAttribute(string template) : base(template)
         {
         }
+
+        public HttpPostAttribute() { }
     }
 
     public class HttpPutAttribute : RouteAttribute
@@ -34,6 +40,8 @@ namespace JsonHCSNet.Proxies.ApiDefinition
         public HttpPutAttribute(string template) : base(template)
         {
         }
+
+        public HttpPutAttribute() { }
     }
 
     public class HttpDeleteAttribute : RouteAttribute
@@ -41,5 +49,7 @@ namespace JsonHCSNet.Proxies.ApiDefinition
         public HttpDeleteAttribute(string template) : base(template)
         {
         }
+
+        public HttpDeleteAttribute() { }
     }
 }

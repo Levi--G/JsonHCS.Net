@@ -3,7 +3,7 @@ JsonHCS.Net.Proxies for .Net is a JsonHCS.Net based proxy generator for easy api
 
 [![NuGet version (JsonHCS.Net.Proxies)](https://img.shields.io/nuget/v/JsonHCS.Net.Proxies.svg)](https://www.nuget.org/packages/JsonHCS.Net.Proxies/)
 
-Please note: this is more a fun project and proof of concept than an actual library to be used in production so do keep this in mind (it might not support many features). However feel free to submit any ideas/issues!
+JsonHCS.Net.Proxies recently got some big updates and should support most basic scenario's now, feel free to suggest new features!
 
 ## Support
 
@@ -15,21 +15,41 @@ Supported api definitions:
 - Interface
 
 The following attributes are recognised and used for api generation:
+ASP.NET attributes:
 - RouteAttribute
-- FromBodyAttribute
-- HttpPostAttribute
 - HttpGetAttribute
+- HttpPostAttribute
 - HttpPutAttribute
 - HttpDeleteAttribute
+- FromBodyAttribute
+- FromQueryAttribute
+- FromFormAttribute (TBD)
+- FromHeaderAttribute
+- FromRouteAttribute
 
-## Usage
+JsonHCS specific:
+- RawDataAttribute (For Stream/MemoryStream download)
+- RawJObjectAttribute (Returns Newtonsoft JObject)
+- RawResponseAttribute (Returns HttpResponseMessage)
+- RawStringAttribute (Returns an unparsed string, default will try to parse the string as json)
+
+## Simple usage
 
 - Include the package in NuGet: https://www.nuget.org/packages/JsonHCS.Net.Proxies/
 
 - Add the right usings
 
 ```cs
+//For the proxy:
 using JsonHCSNet.Proxies;
+
+//For the attribute definitions (optional)
+//recommended for clients (smaller footprint)
+using JsonHCSNet.Proxies.ApiDefinition;
+
+//Or if you want to use the AspNetCore.Mvc.Core nuget
+//recommended for asp.net core servers using the library
+//using Microsoft.AspNetCore.Mvc;
 ```
 
 - Construct with your preferred options and use it!
@@ -54,15 +74,15 @@ await client.AddPost((new SampleController.Post() { title = "foo", body = "bar",
     [Route("posts")]
     public abstract class SampleController
     {
-        [Route("")]
+        [Route("")]//Optional
+		[HttpGet]//Optional, get is default
         public abstract Task<Post[]> Get();
 
         [Route("{id}")]
-        public abstract Task<Post> GetPost(int id);
-
-        [HttpPost]
-        [Route("")]
-        public abstract Task AddPost([FromBody]Post value);
+        public abstract Task<Post> GetPost([FromRoute]int id);//Optional, FromRoute is implied
+		
+        [HttpPost]//Optional, post is implied when using body
+        public abstract Task AddPost([FromBody]Post value);//Optional, Frombody is implied when using complex types
 
         public class Post
         {
@@ -74,8 +94,60 @@ await client.AddPost((new SampleController.Post() { title = "foo", body = "bar",
     }
 ```
 
+Note: the optional attributes are not needed when using JsonHCS wich allows for very easy api clients, BUT Asp.Net might still require them!
+
 A more complete sample can be found in the source.
+
+## Shared api definition (advanced)
+
+With JsonHCS.Net.Proxies you can share your api definition between your server and client without any code generation!
+
+Make your definition as an abstract class inheriting from Controller or ControllerBase
+Then add these usings:
+
+```
+#if SERVER
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+#else
+using JsonHCSNet.Proxies.ApiDefinition; 
+#endif
+```
+
+Example csproj (adjust to your situation):
+```
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard1.5</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(DefineConstants.Contains(SERVER))">
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Lib.Server</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains(SERVER))">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="!$(DefineConstants.Contains(SERVER))">
+    <PackageReference Include="JsonHCS.Net.Proxies" Version="1.2.0" />
+  </ItemGroup>
+</Project>
+```
+
+Now you can build (or package) and reference the Library you made twice, one for the client using JsonHCS api definitions and one for the server (you need to tell Visual studio or MSbuild to define SERVER as a compilation constant). In your client you can use the abstract class to generate the proxy as described earlier, in the server you can inherit your implementation from the abstract class you made and no need to define your routes/attributes again as they are set in the abstract class.
+
+Now when you make changes to your definition both api and client will get compile-time checks of valid api implementation/usage!
 
 ## Issues
 
-[Submit an issue](https://github.com/Levi--G/JsonHCS.Net/issues)
+Found an issue? [Submit an issue!](https://github.com/Levi--G/JsonHCS.Net/issues)

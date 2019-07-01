@@ -3,6 +3,7 @@ using JsonHCSNet.Proxies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -31,6 +32,11 @@ namespace JsonHCSNet.Proxytests
 
             [HttpDelete("{id}")]
             public abstract Task Delete(int id);
+            
+            //same as previous tests but without implied attributes
+            public abstract Task<Post[]> GetAllMin();
+            public abstract Task<Post[]> GetPostsMin(int userId);
+            public abstract Task<Post> AddPostMin(PostBase value);
 
             public class PostBase
             {
@@ -93,6 +99,14 @@ namespace JsonHCSNet.Proxytests
         public void TestDeleteAttribute()
         {
             GetTestAPI().Delete(1).Wait();
+        }
+
+        [TestMethod]
+        public void TestImpliedAttributes()
+        {
+            Assert.IsTrue(GetTestAPI().GetAllMin().Result.Length == 100);
+            Assert.IsTrue(this.GetTestAPI().GetPostsMin(2).Result[0].UserId == 2);
+            Assert.IsTrue(GetTestAPI().AddPostMin(new API.PostBase() { Body = "", Title = "Title", UserId = 1 }).Result.Id == 101);
         }
     }
 }

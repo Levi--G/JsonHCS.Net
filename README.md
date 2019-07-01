@@ -11,11 +11,12 @@ For more info about Json.Net.Proxies visit [this](https://github.com/Levi--G/Jso
 
 Supported platforms: .Net Standard 1.1+
 
-Supported http requests:
+Supported requests:
 - GET
 - POST
 - PUT
 - DELETE
+- File Download + Upload
 
 ## Usage
 

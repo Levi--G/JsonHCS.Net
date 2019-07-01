@@ -54,15 +54,15 @@ namespace Sample
     [Route("posts")]
     public abstract class SampleController
     {
-        [Route("")]
+        //[Route("")]
         public abstract Task<Post[]> Get();
 
         [Route("{id}")]
         public abstract Task<Post> GetPost(int id);
 
-        [HttpPost]
-        [Route("")]
-        public abstract Task AddPost([FromBody]Post value);
+        //[HttpPost]
+        //[Route("")]
+        public abstract Task AddPost(/*[FromBody]*/Post value);
 
         public class Post
         {

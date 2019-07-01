@@ -17,7 +17,7 @@
     <PackageReleaseNotes>Various bugfixes and small improvements
 Support for more JsonHCS supported features through various attributes (file, stream, string, JObject and HTTPResponse)</PackageReleaseNotes>
     <NeutralLanguage>english</NeutralLanguage>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
   </PropertyGroup>
 

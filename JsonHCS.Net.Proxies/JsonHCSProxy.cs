@@ -41,59 +41,76 @@ namespace JsonHCSNet.Proxies
             }
             bool noreturn = returnparam == typeof(void);
 
-            ParameterInfo[] parameters = invocation.Method.GetParameters();
-            var postParameters = parameters.Where(p => HasAttribute(p, "FromBodyAttribute")).ToArray();
             var routeparams = Regex.Matches(fullroute, @"\{.+\}", RegexOptions.Compiled).OfType<Match>().Select(m => m.Value.Substring(1, m.Value.Length - 2)).ToArray();
-            var routeParameters = parameters.Except(postParameters).Where(p => routeparams.Contains(p.Name)).ToArray();
-            var queryParameters = parameters.Except(postParameters).Except(routeParameters).ToArray();
+            var parameters = invocation.Method.GetParameters().Select(p => FindParameterTypeAndName(p, routeparams, invocation.Arguments)).ToList();
 
+            var postParameters = parameters.Where(p => p.Item2 == SourceType.Body);
             object postArgument;
-            if (postParameters.Length < 2)
+            if (postParameters.Count() < 2)
             {
-                postArgument = GetParameterValues(postParameters, invocation.Arguments).FirstOrDefault();
+                postArgument = postParameters.FirstOrDefault()?.Item3;
             }
             else
             {
-                postArgument = GetParameterValues(postParameters, invocation.Arguments).Select((p, i) => Tuple.Create(postParameters[i].Name, p)).ToDictionary(t => t.Item1, t => t.Item2);
+                postArgument = postParameters.ToDictionary(t => t.Item1, t => t.Item3);
             }
 
-            if (routeParameters != null && routeParameters.Length > 0)
+            var routeParameters = parameters.Where(p => p.Item2 == SourceType.Route);
+            if (routeParameters != null && routeParameters.Count() > 0)
             {
                 foreach (var param in routeParameters)
                 {
-                    var value = GetParameterValue(param, invocation.Arguments).ToString();
-                    fullroute = fullroute.Replace($"{{{param.Name}}}", value);
+                    var value = param.Item3.ToString();
+                    fullroute = fullroute.Replace($"{{{param.Item1}}}", value);
                 }
             }
 
-            if (queryParameters != null && queryParameters.Length > 0)
+            var queryParameters = parameters.Where(p => p.Item2 == SourceType.Query);
+            if (queryParameters != null && queryParameters.Count() > 0)
             {
                 fullroute += "?" + string.Join("&", queryParameters.Select(q =>
                 {
-                    var v = GetParameterValue(q, invocation.Arguments);
-                    if (v == null) { return null; }
-                    return $"{q.Name}={System.Net.WebUtility.UrlEncode(v.ToString())}";
-                }).Where(s => s != null));
+                    return $"{q.Item1}={System.Net.WebUtility.UrlEncode(q.Item3?.ToString() ?? string.Empty)}";
+                }));
+            }
+
+            List<KeyValuePair<string, IEnumerable<string>>> headers = new List<KeyValuePair<string, IEnumerable<string>>>();
+            var headerParameters = parameters.Where(p => p.Item2 == SourceType.Header);
+            foreach (var param in headerParameters)
+            {
+                var key = param.Item1;
+                var value = param.Item3 ?? string.Empty;
+                if (value is IEnumerable<string> i)
+                {
+                    headers.Add(new KeyValuePair<string, IEnumerable<string>>(key, i));
+                }
+                else if (value is string s)
+                {
+                    headers.Add(new KeyValuePair<string, IEnumerable<string>>(key, new[] { s }));
+                }
+                else
+                {
+                    headers.Add(new KeyValuePair<string, IEnumerable<string>>(key, new[] { value.ToString() }));
+                }
             }
 
             Task returntask = null;
-
-            var method = FindHttpMethod(invocation.Method);
+            var method = FindHttpMethod(invocation.Method, parameters);
             if (noreturn)
             {
                 switch (method)
                 {
                     case HttpMethod.Get:
-                        returntask = jsonHCS.GetRawAsync(fullroute);
+                        returntask = jsonHCS.GetRawAsync(fullroute, headers);
                         break;
                     case HttpMethod.Post:
-                        returntask = jsonHCS.PostAsync(fullroute, postArgument);
+                        returntask = jsonHCS.PostAsync(fullroute, postArgument, headers);
                         break;
                     case HttpMethod.Put:
-                        returntask = jsonHCS.PutAsync(fullroute, postArgument);
+                        returntask = jsonHCS.PutAsync(fullroute, postArgument, headers);
                         break;
                     case HttpMethod.Delete:
-                        returntask = jsonHCS.DeleteAsync(fullroute);
+                        returntask = jsonHCS.DeleteAsync(fullroute, headers);
                         break;
                     default:
                         break;
@@ -102,22 +119,21 @@ namespace JsonHCSNet.Proxies
             else
             {
                 var type = FindReturnType(invocation.Method);
-
                 if (type == ReturnType.Object)
                 {
                     switch (method)
                     {
                         case HttpMethod.Get:
-                            returntask = ConvertTask(jsonHCS.GetJsonAsync(fullroute, returnparam), returnparam);
+                            returntask = ConvertTask(jsonHCS.GetJsonAsync(fullroute, returnparam, headers), returnparam);
                             break;
                         case HttpMethod.Post:
-                            returntask = ConvertTask(jsonHCS.PostToJsonAsync(fullroute, postArgument, returnparam), returnparam);
+                            returntask = ConvertTask(jsonHCS.PostToJsonAsync(fullroute, postArgument, returnparam, headers), returnparam);
                             break;
                         case HttpMethod.Put:
-                            returntask = ConvertTask(jsonHCS.PutToJsonAsync(fullroute, postArgument, returnparam), returnparam);
+                            returntask = ConvertTask(jsonHCS.PutToJsonAsync(fullroute, postArgument, returnparam, headers), returnparam);
                             break;
                         case HttpMethod.Delete:
-                            returntask = ConvertTask(jsonHCS.DeleteToJsonAsync(fullroute, returnparam), returnparam);
+                            returntask = ConvertTask(jsonHCS.DeleteToJsonAsync(fullroute, returnparam, headers), returnparam);
                             break;
                         default:
                             break;
@@ -156,16 +172,16 @@ namespace JsonHCSNet.Proxies
                     switch (method)
                     {
                         case HttpMethod.Get:
-                            returntask = jsonHCS.GetJObjectAsync(fullroute);
+                            returntask = jsonHCS.GetJObjectAsync(fullroute, headers);
                             break;
                         case HttpMethod.Post:
-                            returntask = jsonHCS.PostToJObjectAsync(fullroute, postArgument);
+                            returntask = jsonHCS.PostToJObjectAsync(fullroute, postArgument, headers);
                             break;
                         case HttpMethod.Put:
-                            returntask = jsonHCS.PutToJObjectAsync(fullroute, postArgument);
+                            returntask = jsonHCS.PutToJObjectAsync(fullroute, postArgument, headers);
                             break;
                         case HttpMethod.Delete:
-                            returntask = jsonHCS.DeleteToJObjectAsync(fullroute);
+                            returntask = jsonHCS.DeleteToJObjectAsync(fullroute, headers);
                             break;
                         default:
                             break;
@@ -176,16 +192,16 @@ namespace JsonHCSNet.Proxies
                     switch (method)
                     {
                         case HttpMethod.Get:
-                            returntask = jsonHCS.GetRawAsync(fullroute);
+                            returntask = jsonHCS.GetRawAsync(fullroute, headers);
                             break;
                         case HttpMethod.Post:
-                            returntask = jsonHCS.PostToRawAsync(fullroute, postArgument);
+                            returntask = jsonHCS.PostToRawAsync(fullroute, postArgument, headers);
                             break;
                         case HttpMethod.Put:
-                            returntask = jsonHCS.PutToRawAsync(fullroute, postArgument);
+                            returntask = jsonHCS.PutToRawAsync(fullroute, postArgument, headers);
                             break;
                         case HttpMethod.Delete:
-                            returntask = jsonHCS.DeleteToRawAsync(fullroute);
+                            returntask = jsonHCS.DeleteToRawAsync(fullroute, headers);
                             break;
                         default:
                             break;
@@ -196,16 +212,16 @@ namespace JsonHCSNet.Proxies
                     switch (method)
                     {
                         case HttpMethod.Get:
-                            returntask = jsonHCS.GetStringAsync(fullroute);
+                            returntask = jsonHCS.GetStringAsync(fullroute, headers);
                             break;
                         case HttpMethod.Post:
-                            returntask = jsonHCS.PostToStringAsync(fullroute, postArgument);
+                            returntask = jsonHCS.PostToStringAsync(fullroute, postArgument, headers);
                             break;
                         case HttpMethod.Put:
-                            returntask = jsonHCS.PutToStringAsync(fullroute, postArgument);
+                            returntask = jsonHCS.PutToStringAsync(fullroute, postArgument, headers);
                             break;
                         case HttpMethod.Delete:
-                            returntask = jsonHCS.DeleteToStringAsync(fullroute);
+                            returntask = jsonHCS.DeleteToStringAsync(fullroute, headers);
                             break;
                         default:
                             break;
@@ -257,11 +273,6 @@ namespace JsonHCSNet.Proxies
             return (T)result;
         }
 
-        static IEnumerable<object> GetParameterValues(ParameterInfo[] parameters, object[] args)
-        {
-            return parameters.Select(p => GetParameterValue(p, args));
-        }
-
         static object GetParameterValue(ParameterInfo p, object[] args)
         {
             return (args.Length > p.Position ? args[p.Position] : null ?? p.DefaultValue);
@@ -274,7 +285,7 @@ namespace JsonHCSNet.Proxies
 
         static bool HasAttribute(ICustomAttributeProvider data, string name)
         {
-            return data.GetCustomAttributes(false).FirstOrDefault(a => a.GetType().Name == name) != null;
+            return GetAttribute(data, name) != null;
         }
 
         static bool HasAttribute(ICustomAttributeProvider data, Type type)
@@ -282,27 +293,43 @@ namespace JsonHCSNet.Proxies
             return data.GetCustomAttributes(type, false).FirstOrDefault() != null;
         }
 
+        static IEnumerable<object> GetAttributes(ICustomAttributeProvider data, string name)
+        {
+            return data.GetCustomAttributes(false).Where(a => a.GetType().Name == name);
+        }
+
+        static object GetAttribute(ICustomAttributeProvider data, string name)
+        {
+            return GetAttributes(data, name).FirstOrDefault();
+        }
+
         enum HttpMethod { Get, Post, Put, Delete }
         enum ReturnType { String, Response, JObject, Data, Object }
+        enum SourceType { Body, Form, Header, Query, Route, Services }
 
-        static HttpMethod FindHttpMethod(ICustomAttributeProvider data)
+        static HttpMethod FindHttpMethod(ICustomAttributeProvider data, List<Tuple<string, SourceType, object>> parameters)
         {
             if (HasAttribute(data, "HttpPostAttribute"))
             {
                 return HttpMethod.Post;
             }
-            else if (HasAttribute(data, "HttpPutAttribute"))
+            if (HasAttribute(data, "HttpPutAttribute"))
             {
                 return HttpMethod.Put;
             }
-            else if (HasAttribute(data, "HttpDeleteAttribute"))
+            if (HasAttribute(data, "HttpDeleteAttribute"))
             {
                 return HttpMethod.Delete;
             }
-            else
+            if (HasAttribute(data, "HttpGetAttribute"))
             {
                 return HttpMethod.Get;
             }
+            if (parameters.Any(p => p.Item2 == SourceType.Body || p.Item2 == SourceType.Form))
+            {
+                return HttpMethod.Post;
+            }
+            return HttpMethod.Get;
         }
 
         static ReturnType FindReturnType(ICustomAttributeProvider data)
@@ -327,6 +354,65 @@ namespace JsonHCSNet.Proxies
             {
                 return ReturnType.Object;
             }
+        }
+
+        static Tuple<string, SourceType, object> FindParameterTypeAndName(ParameterInfo parameter, string[] queryParameters, object[] values)
+        {
+            if (HasAttribute(parameter, "FromBodyAttribute"))
+            {
+                return Tuple.Create(parameter.Name, SourceType.Body, GetParameterValue(parameter, values));
+            }
+            if (HasAttribute(parameter, "FromFormAttribute"))
+            {
+                return Tuple.Create(GetParameterName("FromFormAttribute", parameter), SourceType.Form, GetParameterValue(parameter, values));
+            }
+            if (HasAttribute(parameter, "FromHeaderAttribute"))
+            {
+                return Tuple.Create(GetParameterName("FromHeaderAttribute", parameter), SourceType.Header, GetParameterValue(parameter, values));
+            }
+            if (HasAttribute(parameter, "FromQueryAttribute"))
+            {
+                return Tuple.Create(GetParameterName("FromQueryAttribute", parameter), SourceType.Query, GetParameterValue(parameter, values));
+            }
+            if (HasAttribute(parameter, "FromRouteAttribute"))
+            {
+                return Tuple.Create(GetParameterName("FromRouteAttribute", parameter), SourceType.Route, GetParameterValue(parameter, values));
+            }
+            if (HasAttribute(parameter, "FromServicesAttribute"))
+            {
+                return Tuple.Create(parameter.Name, SourceType.Services, GetParameterValue(parameter, values));
+            }
+            //implicit
+            if (!IsSimple(parameter.ParameterType))
+            {
+                return Tuple.Create(parameter.Name, SourceType.Body, GetParameterValue(parameter, values));
+            }
+            if (queryParameters.Contains(parameter.Name))
+            {
+                return Tuple.Create(parameter.Name, SourceType.Route, GetParameterValue(parameter, values));
+            }
+            return Tuple.Create(parameter.Name, SourceType.Query, GetParameterValue(parameter, values));
+        }
+
+        static string GetParameterName(string attribute, ParameterInfo parameter)
+        {
+            var a = GetAttribute(parameter, attribute);
+            var name = a.GetType().GetProperty("Name")?.GetValue(a) as string ?? parameter.Name;
+            return name;
+        }
+
+        static bool IsSimple(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                // nullable type, check if the nested type is simple.
+                return IsSimple(typeInfo.GetGenericArguments()[0]);
+            }
+            return typeInfo.IsPrimitive
+              || typeInfo.IsEnum
+              || type.Equals(typeof(string))
+              || type.Equals(typeof(decimal));
         }
     }
 }
