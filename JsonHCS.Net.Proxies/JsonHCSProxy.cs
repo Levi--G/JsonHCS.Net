@@ -40,8 +40,24 @@ namespace JsonHCSNet.Proxies
                 }
             }
             bool noreturn = returnparam == typeof(void);
+            bool isaction = typeof(ApiDefinition.IActionResult).IsAssignableFrom(returnparam);
+            bool isIAction = false;
+            bool isgenericaction = false;
+            if (isaction)
+            {
+                if (returnparam.IsConstructedGenericType)
+                {
+                    isgenericaction = true;
+                    returnparam = returnparam.GetGenericArguments().First();
+                }
+                else
+                {
+                    isIAction = !typeof(ApiDefinition.ActionResult).IsAssignableFrom(returnparam);
+                    returnparam = typeof(void);
+                }
+            }
 
-            var routeparams = Regex.Matches(fullroute, @"\{.+\}", RegexOptions.Compiled).OfType<Match>().Select(m => m.Value.Substring(1, m.Value.Length - 2)).ToArray();
+            var routeparams = Regex.Matches(fullroute, @"\{.+?\}", RegexOptions.Compiled).OfType<Match>().Select(m => m.Value.Substring(1, m.Value.Length - 2)).ToArray();
             var parameters = invocation.Method.GetParameters().Select(p => FindParameterTypeAndName(p, routeparams, invocation.Arguments)).ToList();
 
             var postParameters = parameters.Where(p => p.Item2 == SourceType.Body);
@@ -96,7 +112,7 @@ namespace JsonHCSNet.Proxies
 
             Task returntask = null;
             var method = FindHttpMethod(invocation.Method, parameters);
-            if (noreturn)
+            if (isaction || noreturn)
             {
                 switch (method)
                 {
@@ -104,13 +120,13 @@ namespace JsonHCSNet.Proxies
                         returntask = jsonHCS.GetRawAsync(fullroute, headers);
                         break;
                     case HttpMethod.Post:
-                        returntask = jsonHCS.PostAsync(fullroute, postArgument, headers);
+                        returntask = jsonHCS.PostToRawAsync(fullroute, postArgument, headers);
                         break;
                     case HttpMethod.Put:
-                        returntask = jsonHCS.PutAsync(fullroute, postArgument, headers);
+                        returntask = jsonHCS.PutToRawAsync(fullroute, postArgument, headers);
                         break;
                     case HttpMethod.Delete:
-                        returntask = jsonHCS.DeleteAsync(fullroute, headers);
+                        returntask = jsonHCS.DeleteToRawAsync(fullroute, headers);
                         break;
                     default:
                         break;
@@ -228,6 +244,21 @@ namespace JsonHCSNet.Proxies
                     }
                 }
             }
+            if (isaction)
+            {
+                if (isgenericaction)
+                {
+                    returntask = (Task)this.GetType().GetMethod("GetActionResultT").MakeGenericMethod(returnparam).Invoke(this, new object[] { returntask });
+                }
+                else if (isIAction)
+                {
+                    returntask = GetIActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>);
+                }
+                else
+                {
+                    returntask = GetActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>);
+                }
+            }
             if (istask)
             {
                 invocation.ReturnValue = returntask;
@@ -235,7 +266,7 @@ namespace JsonHCSNet.Proxies
             else if (!noreturn)
             {
                 returntask.Wait();
-                invocation.ReturnValue = returntask.GetType().GetProperty("Result", BindingFlags.Public).GetValue(returntask);
+                invocation.ReturnValue = returntask.GetType().GetProperty("Result", BindingFlags.Instance | BindingFlags.Public)?.GetValue(returntask);
             }
         }
 
@@ -280,12 +311,7 @@ namespace JsonHCSNet.Proxies
 
         static T GetAttribute<T>(MemberInfo data) where T : Attribute
         {
-            return (T)data.GetCustomAttributes(typeof(T)).FirstOrDefault();
-        }
-
-        static bool HasAttribute(ICustomAttributeProvider data, string name)
-        {
-            return GetAttribute(data, name) != null;
+            return (T)data.GetCustomAttributes(typeof(T), false).FirstOrDefault();
         }
 
         static bool HasAttribute(ICustomAttributeProvider data, Type type)
@@ -301,6 +327,11 @@ namespace JsonHCSNet.Proxies
         static object GetAttribute(ICustomAttributeProvider data, string name)
         {
             return GetAttributes(data, name).FirstOrDefault();
+        }
+
+        static bool HasAttribute(ICustomAttributeProvider data, string name)
+        {
+            return GetAttribute(data, name) != null;
         }
 
         enum HttpMethod { Get, Post, Put, Delete }
@@ -413,6 +444,21 @@ namespace JsonHCSNet.Proxies
               || typeInfo.IsEnum
               || type.Equals(typeof(string))
               || type.Equals(typeof(decimal));
+        }
+
+        async Task<ApiDefinition.ActionResult> GetActionResult(Task<System.Net.Http.HttpResponseMessage> response)
+        {
+            return new ActionResultSupport.GenericResult<object>(await response);
+        }
+
+        async Task<ApiDefinition.IActionResult> GetIActionResult(Task<System.Net.Http.HttpResponseMessage> response)
+        {
+            return new ActionResultSupport.GenericResult<object>(await response);
+        }
+
+        public async Task<ApiDefinition.ActionResult<T>> GetActionResultT<T>(Task<System.Net.Http.HttpResponseMessage> response)
+        {
+            return new ActionResultSupport.GenericResult<T>(await response);
         }
     }
 }

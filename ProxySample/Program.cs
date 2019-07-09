@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using JsonHCSNet;
 using JsonHCSNet.Proxies;
-using Microsoft.AspNetCore.Mvc;
+using JsonHCSNet.Proxies.ApiDefinition;
 
 namespace Sample
 {

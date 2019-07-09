@@ -1,6 +1,6 @@
 ﻿using JsonHCSNet;
 using JsonHCSNet.Proxies;
-using Microsoft.AspNetCore.Mvc;
+using JsonHCSNet.Proxies.ApiDefinition;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
@@ -22,6 +22,15 @@ namespace JsonHCSNet.Proxytests
             [Route("{id}")]
             public abstract Task<Post> Get(int id);
 
+            [Route("{id}")]
+            public abstract Post GetSync(int id);
+
+            [Route("{id}")]
+            public abstract IActionResult GetIAction(int id);
+
+            [Route("{id}")]
+            public abstract ActionResult<Post> GetAction(int id);
+
             public abstract Task<Post[]> GetPosts([FromQuery] int userId);
 
             [HttpPost]
@@ -32,7 +41,7 @@ namespace JsonHCSNet.Proxytests
 
             [HttpDelete("{id}")]
             public abstract Task Delete(int id);
-            
+
             //same as previous tests but without implied attributes
             public abstract Task<Post[]> GetAllMin();
             public abstract Task<Post[]> GetPostsMin(int userId);
@@ -99,6 +108,28 @@ namespace JsonHCSNet.Proxytests
         public void TestDeleteAttribute()
         {
             GetTestAPI().Delete(1).Wait();
+        }
+
+        [TestMethod]
+        public void TestSynchronous()
+        {
+            Assert.AreEqual(GetTestAPI().GetSync(1).Id, 1);
+        }
+
+        [TestMethod]
+        public void TestIActionResult()
+        {
+            var result = GetTestAPI().GetIAction(2);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(result.GetJsonAsync<API.Post>().Result.Id, 2);
+        }
+
+        [TestMethod]
+        public void TestActionResult()
+        {
+            var result = GetTestAPI().GetAction(3);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(result.GetResultAsync().Result.Id, 3);
         }
 
         [TestMethod]

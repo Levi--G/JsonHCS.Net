@@ -7,23 +7,23 @@
     <Authors>Levi Gillis</Authors>
     <Company>Levi Gillis</Company>
     <Description>JsonHCS.Net.Proxies for .Net is a JsonHCS.Net based proxy generator for easy and fast (but powerful) api definitions</Description>
-    <Copyright>Levi Gillis @ 2018</Copyright>
+    <Copyright>Levi Gillis @ 2019</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/Levi--G/JsonHCS.Net/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
     <PackageIconUrl>http://animedev.azurewebsites.net/Nuget/JsonHCS.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
-    <PackageReleaseNotes>Various bugfixes and small improvements
-Support for more JsonHCS supported features through various attributes (file, stream, string, JObject and HTTPResponse)</PackageReleaseNotes>
-    <NeutralLanguage>english</NeutralLanguage>
-    <Version>1.3.0</Version>
+    <PackageReleaseNotes>- Fixed bug synchronous request would return null
+- Added IActionResult, ActionResult and ActionResult&lt;T&gt; support (only when not using MVC types)</PackageReleaseNotes>
+    <NeutralLanguage>English</NeutralLanguage>
+    <Version>1.4.0</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.0" />
-    <PackageReference Include="JsonHCS.Net" Version="1.0.9" />
+    <PackageReference Include="JsonHCS.Net" Version="1.1.0" />
   </ItemGroup>
 
 </Project>
