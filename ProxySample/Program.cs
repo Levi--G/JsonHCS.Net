@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using JsonHCSNet;
 using JsonHCSNet.Proxies;
 using JsonHCSNet.Proxies.ApiDefinition;
+using JsonHCSNet.Proxies.Plugins;
 
 namespace Sample
 {
@@ -19,7 +20,7 @@ namespace Sample
 
         static async Task Run()
         {
-            JsonHCSProxyGenerator pg = new JsonHCSProxyGenerator();
+            JsonHCSProxyGenerator pg = new JsonHCSProxyGenerator(null, new BasicPlugin());
             {
                 Stopwatch s = new Stopwatch();
                 s.Start();

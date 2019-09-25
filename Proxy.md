@@ -28,9 +28,6 @@ ASP.NET attributes:
 - FromRouteAttribute
 
 JsonHCS specific:
-- RawDataAttribute (For Stream/MemoryStream download)
-- RawJObjectAttribute (Returns Newtonsoft JObject)
-- RawResponseAttribute (Returns HttpResponseMessage)
 - RawStringAttribute (Returns an unparsed string, default will try to parse the string as json)
 
 ## Simple usage
@@ -57,7 +54,7 @@ using JsonHCSNet.Proxies.ApiDefinition;
 ```cs
 var settings = new JsonHCS_Settings()
 {
-    CookieSupport = true,                   //I want to support sessions and thus cookies
+    CookieSupport = true,                   //To support sessions and thus cookies
     AddDefaultAcceptHeaders = true,         //Adds default acceptance headers for json types
     UserAgent = "MyAwesomeSampleAgent"      //Because why not, this is usually ignored anyways
 };
@@ -74,15 +71,15 @@ await client.AddPost((new SampleController.Post() { title = "foo", body = "bar",
     [Route("posts")]
     public abstract class SampleController
     {
-        [Route("")]//Optional
-		[HttpGet]//Optional, get is default
+        //[Route("")]//Optional
+		//[HttpGet]//Optional, get is default
         public abstract Task<Post[]> Get();
 
         [Route("{id}")]
-        public abstract Task<Post> GetPost([FromRoute]int id);//Optional, FromRoute is implied
+        public abstract Task<Post> GetPost(/*[FromRoute]*/int id);//Optional, FromRoute is implied when name is found in route
 		
-        [HttpPost]//Optional, post is implied when using body
-        public abstract Task AddPost([FromBody]Post value);//Optional, Frombody is implied when using complex types
+        //[HttpPost]//Optional, post is implied when using FromBody
+        public abstract Task AddPost(/*[FromBody]*/Post value);//FromBody is Optional, is implied when using complex types
 
         public class Post
         {
@@ -97,6 +94,58 @@ await client.AddPost((new SampleController.Post() { title = "foo", body = "bar",
 Note: the optional attributes are not needed when using JsonHCS wich allows for very easy api clients, BUT Asp.Net might still require them!
 
 A more complete sample can be found in the source.
+
+## Plugins
+
+You can now support your own custom types/attributes/requests.
+Simply create a class that derives from IProxyPlugin:
+
+```cs
+    /// <summary>
+    /// Provides ActionResult support
+    /// </summary>
+    public class ActionResultPlugin : ProxyPlugin
+    {
+		...
+        public override bool IsHandler => true;
+		...
+        public override Task Handle(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
+        {
+            //Get HttpResponseMessage with default implementation
+            Task returntask = manager.Handle(jsonHCS, route, parameters, typeof(System.Net.Http.HttpResponseMessage), invocation);
+
+            //implement own usage
+            if (targetType.IsConstructedGenericType)
+            {
+                returntask = (Task)this.GetType().GetMethod("GetActionResultT").MakeGenericMethod(targetType.GetGenericArguments().First()).Invoke(this, new object[] { returntask });
+            }
+            else if (typeof(ApiDefinition.ActionResult).IsAssignableFrom(targetType))
+            {
+                returntask = GetActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>);
+            }
+            else
+            {
+                returntask = GetIActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>);
+            }
+            return returntask;
+        }
+		...
+    }
+```
+
+And include it in the plugin list when constructing the ProxyGenerator:
+
+```cs
+JsonHCSProxyGenerator pg = new JsonHCSProxyGenerator(null, new ActionResultPlugin(), new BasicPlugin()); //Don't forget to include the BasicPlugin if you need the default implementations
+```
+
+Plugins are loaded in order, so the first plugin in the list that is able to handle the request will handle it. It is always best to load specific plugins first to avoid priority issues.
+
+By default the following plugins are loaded:
+- ActionResultPlugin
+- BasicPlugin
+
+You can remove them by not including these when specifying your own plugins.
 
 ## Shared api definition (advanced)
 

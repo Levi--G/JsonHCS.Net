@@ -14,10 +14,9 @@
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
-    <PackageReleaseNotes>- Fixed bug synchronous request would return null
-- Added IActionResult, ActionResult and ActionResult&lt;T&gt; support (only when not using MVC types)</PackageReleaseNotes>
+    <PackageReleaseNotes>- Introduced plugins!</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
   </PropertyGroup>
 
