@@ -10,7 +10,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2C61BDA1-8AAB-4853-842A-4D9F0B80615D}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
-		Proxy.md = Proxy.md
+		Proxies.md = Proxies.md
+		Proxies.SignalR.md = Proxies.SignalR.md
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -21,6 +22,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonHCS.Net.Proxytests", "JsonHCS.Net.Proxytests\JsonHCS.Net.Proxytests.csproj", "{82B1D0E9-7995-465B-A565-1265BA1F7123}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonHCS.Net.Tests", "JsonHCS.Net.Tests\JsonHCS.Net.Tests.csproj", "{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonHCS.Net.Proxies.SignalR", "JsonHCS.Net.Proxies.SignalR\JsonHCS.Net.Proxies.SignalR.csproj", "{08223199-6B26-403B-AAFC-C5C9AB61042C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalRHub", "SignalRHub\SignalRHub.csproj", "{3AF84412-F4BC-406E-9F44-D9813C840F5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +57,14 @@ Global
 		{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BA1C2F5-5BE9-438B-A891-BE2FA174EE1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08223199-6B26-403B-AAFC-C5C9AB61042C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08223199-6B26-403B-AAFC-C5C9AB61042C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08223199-6B26-403B-AAFC-C5C9AB61042C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08223199-6B26-403B-AAFC-C5C9AB61042C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AF84412-F4BC-406E-9F44-D9813C840F5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AF84412-F4BC-406E-9F44-D9813C840F5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AF84412-F4BC-406E-9F44-D9813C840F5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AF84412-F4BC-406E-9F44-D9813C840F5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

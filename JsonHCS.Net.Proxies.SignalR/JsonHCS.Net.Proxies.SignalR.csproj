@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>JsonHCSNet.Proxies.SignalR</RootNamespace>
+    <Authors>Levi Gillis</Authors>
+    <Company>Levi Gillis</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Description>A simple JsonHCS.Net.Proxies plugin with strongly typed SignalR hub support</Description>
+    <Copyright>Levi Gillis @ 2019</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/Levi--G/JsonHCS.Net/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
+    <PackageIconUrl>http://animedev.azurewebsites.net/Nuget/JsonHCS.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>SignalR</PackageTags>
+    <PackageReleaseNotes>- Initial release</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JsonHCS.Net.Proxies" Version="1.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0" />
+  </ItemGroup>
+
+</Project>
