@@ -1,5 +1,6 @@
 ﻿using Castle.DynamicProxy;
 using JsonHCSNet.Proxies.SignalR;
+using Microsoft.AspNetCore.Http.Connections.Client;
 //using Microsoft.AspNet.SignalR.Client;
 using Microsoft.AspNetCore.SignalR.Client;
 using System;
@@ -24,7 +25,18 @@ namespace JsonHCSNet.Proxies.Plugins
 
         public bool AutoReconnect { get; set; }
 
+        public bool ConnectOnRequest { get; set; } = true;
+
+        public Action<HttpConnectionOptions> ConfigureOptions { get; set; } = (a) => { };
+
+        public Func<string, IHubConnectionBuilder, HubConnection> ConnectionBuilder { get; set; }
+
         public Action<Microsoft.Extensions.Logging.ILoggingBuilder> ConfigureLogging { get; set; }
+
+        public SignalRPlugin()
+        {
+            ConnectionBuilder = DefaultConnectionBuilder;
+        }
 
         public override string GetRoute(PluginManager manager, MemberInfo member)
         {
@@ -70,23 +82,28 @@ namespace JsonHCSNet.Proxies.Plugins
             return await CreateOrGetHub(route, new SignalR.HubConnectionBuilder(type));
         }
 
+        HubConnection DefaultConnectionBuilder(string route, IHubConnectionBuilder builder)
+        {
+            builder = builder.WithUrl(route, ConfigureOptions);
+            if (AutoReconnect)
+            {
+                builder.WithAutomaticReconnect();
+            }
+            if (ConfigureLogging != null)
+            {
+                builder.ConfigureLogging(ConfigureLogging);
+            }
+            return builder.Build();
+        }
+
         async Task<HubConnection> CreateOrGetHub(string route, IHubConnectionBuilder builder = null)
         {
             if (!Cache.TryGetValue(route, out var hub))
             {
                 builder = builder ?? new Microsoft.AspNetCore.SignalR.Client.HubConnectionBuilder();
-                builder = builder.WithUrl(route);
-                if (AutoReconnect)
-                {
-                    builder.WithAutomaticReconnect();
-                }
-                if (ConfigureLogging != null)
-                {
-                    builder.ConfigureLogging(ConfigureLogging);
-                }
-                hub = builder.Build();
+                hub = ConnectionBuilder(route, builder);
             }
-            if (hub.State == HubConnectionState.Disconnected)
+            if (hub.State == HubConnectionState.Disconnected && ConnectOnRequest)
             {
                 await hub.StartAsync();
             }
