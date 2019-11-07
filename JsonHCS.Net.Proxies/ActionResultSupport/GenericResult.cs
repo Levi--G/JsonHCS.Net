@@ -11,6 +11,8 @@ namespace JsonHCSNet.Proxies.ActionResultSupport
 {
     class GenericResult<T> : ApiDefinition.ActionResult<T>
     {
+        JsonHCS jsonHCS;
+
         public GenericResult(HttpResponseMessage Response)
         {
             response = Response;
@@ -28,17 +30,17 @@ namespace JsonHCSNet.Proxies.ActionResultSupport
 
         public override async Task<JObject> GetJObjectAsync()
         {
-            return DeserializeJObject(await GetStringAsync());
+            return jsonHCS.DeserializeJObject(await GetStringAsync());
         }
 
         public override async Task<T1> GetJsonAsync<T1>()
         {
-            return DeserializeJson<T1>(await GetStringAsync());
+            return jsonHCS.DeserializeJson<T1>(await GetStringAsync());
         }
 
         public override async Task<object> GetJsonAsync()
         {
-            return DeserializeJson(await GetStringAsync());
+            return jsonHCS.DeserializeJson(await GetStringAsync());
         }
 
         public override Task<T> GetResultAsync()
@@ -48,32 +50,7 @@ namespace JsonHCSNet.Proxies.ActionResultSupport
 
         public override Task<string> GetStringAsync()
         {
-            return GetStringInternal(Response);
-        }
-
-        private static async Task<string> GetStringInternal(HttpResponseMessage response)
-        {
-            var result = response?.Content;
-            if (result == null) { return null; }
-            return await result.ReadAsStringAsync();
-        }
-
-        private object DeserializeJson(string json, Type type = null)
-        {
-            if (json == null) { return null; }
-            return JsonConvert.DeserializeObject(json, type);
-        }
-
-        private T DeserializeJson<T>(string json)
-        {
-            if (json == null) { return default(T); }
-            return JsonConvert.DeserializeObject<T>(json);
-        }
-
-        private JObject DeserializeJObject(string json)
-        {
-            if (json == null) { return null; }
-            return JObject.Parse(json);
+            return JsonHCS.ReadContentAsString(Response);
         }
     }
 }

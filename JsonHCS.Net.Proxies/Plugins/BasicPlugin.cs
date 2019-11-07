@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,8 +19,6 @@ namespace JsonHCSNet.Proxies.Plugins
         public override bool IsParameterProvider => true;
 
         public override bool IsHandler => true;
-
-        enum HttpMethod { Get, Post, Put, Delete }
 
         public override string GetRoute(PluginManager manager, MemberInfo member)
         {
@@ -48,95 +47,41 @@ namespace JsonHCSNet.Proxies.Plugins
 
             Task returntask = null;
             var method = FindHttpMethod(invocation.Method, parameters);
-            if (targetType == typeof(void) || targetType == typeof(HttpResponseMessage))
+            if (method == HttpMethod.Get && targetType == typeof(System.IO.Stream))
             {
-                switch (method)
-                {
-                    case HttpMethod.Get:
-                        returntask = jsonHCS.GetRawAsync(route, headers);
-                        break;
-                    case HttpMethod.Post:
-                        returntask = jsonHCS.PostToRawAsync(route, postArgument, headers);
-                        break;
-                    case HttpMethod.Put:
-                        returntask = jsonHCS.PutToRawAsync(route, postArgument, headers);
-                        break;
-                    case HttpMethod.Delete:
-                        returntask = jsonHCS.DeleteToRawAsync(route, headers);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else if (method == HttpMethod.Get && targetType == typeof(System.IO.Stream))
-            {
-                returntask = jsonHCS.GetStreamAsync(route);
+                return jsonHCS.GetStreamAsync(route);
             }
             else if (method == HttpMethod.Get && targetType == typeof(System.IO.MemoryStream))
             {
-                returntask = jsonHCS.GetMemoryStreamAsync(route);
+                return jsonHCS.GetMemoryStreamAsync(route);
             }
-            else if (targetType == typeof(JObject))
+
+            HttpContent content = null;
+
+            if (postArgument != null)
             {
-                switch (method)
-                {
-                    case HttpMethod.Get:
-                        returntask = jsonHCS.GetJObjectAsync(route, headers);
-                        break;
-                    case HttpMethod.Post:
-                        returntask = jsonHCS.PostToJObjectAsync(route, postArgument, headers);
-                        break;
-                    case HttpMethod.Put:
-                        returntask = jsonHCS.PutToJObjectAsync(route, postArgument, headers);
-                        break;
-                    case HttpMethod.Delete:
-                        returntask = jsonHCS.DeleteToJObjectAsync(route, headers);
-                        break;
-                    default:
-                        break;
-                }
+                content = new StringContent(jsonHCS.SerializeJson(postArgument));
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            }
+
+            var response = jsonHCS.SendRequestAsync(method, route, content, headers);
+
+            if (targetType == typeof(void) || targetType == typeof(HttpResponseMessage))
+            {
+                return response;
             }
             else if (HasAttribute(invocation.Method, typeof(RawStringAttribute)))
             {
-                switch (method)
-                {
-                    case HttpMethod.Get:
-                        returntask = jsonHCS.GetStringAsync(route, headers);
-                        break;
-                    case HttpMethod.Post:
-                        returntask = jsonHCS.PostToStringAsync(route, postArgument, headers);
-                        break;
-                    case HttpMethod.Put:
-                        returntask = jsonHCS.PutToStringAsync(route, postArgument, headers);
-                        break;
-                    case HttpMethod.Delete:
-                        returntask = jsonHCS.DeleteToStringAsync(route, headers);
-                        break;
-                    default:
-                        break;
-                }
+                return ((Func<Task<string>>)(async () => { return await JsonHCS.ReadContentAsString(await response); })).Invoke();
+            }
+            else if(targetType == typeof(JObject))
+            {
+                return ((Func<Task<JObject>>)(async () => { return jsonHCS.DeserializeJObject(await JsonHCS.ReadContentAsString(await response)); })).Invoke();
             }
             else
             {
-                switch (method)
-                {
-                    case HttpMethod.Get:
-                        returntask = ConvertTask(jsonHCS.GetJsonAsync(route, targetType, headers), targetType);
-                        break;
-                    case HttpMethod.Post:
-                        returntask = ConvertTask(jsonHCS.PostToJsonAsync(route, postArgument, targetType, headers), targetType);
-                        break;
-                    case HttpMethod.Put:
-                        returntask = ConvertTask(jsonHCS.PutToJsonAsync(route, postArgument, targetType, headers), targetType);
-                        break;
-                    case HttpMethod.Delete:
-                        returntask = ConvertTask(jsonHCS.DeleteToJsonAsync(route, targetType, headers), targetType);
-                        break;
-                    default:
-                        break;
-                }
+                return ConvertTask(((Func<Task<object>>)(async () => { return jsonHCS.DeserializeJson(await JsonHCS.ReadContentAsString(await response), targetType); })).Invoke(), targetType);
             }
-            return returntask;
         }
 
         static HttpMethod FindHttpMethod(ICustomAttributeProvider data, List<Parameter> parameters)
