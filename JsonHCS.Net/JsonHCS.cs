@@ -129,7 +129,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await GetStringInternal(await GetRawAsync(url, headers));
+                return await ReadContentAsString(await GetRawAsync(url, headers));
             });
         }
 
@@ -216,7 +216,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await GetStringInternal(await PostToRawAsync(url, data, headers));
+                return await ReadContentAsString(await PostToRawAsync(url, data, headers));
             });
         }
 
@@ -313,7 +313,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await GetStringInternal(await PutToRawAsync(url, data, headers));
+                return await ReadContentAsString(await PutToRawAsync(url, data, headers));
             });
         }
 
@@ -393,7 +393,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await GetStringInternal(await DeleteToRawAsync(url, headers));
+                return await ReadContentAsString(await DeleteToRawAsync(url, headers));
             });
         }
 
@@ -516,10 +516,10 @@ namespace JsonHCSNet
 
         public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            return SendInternalAsync(MakeRequestInternal(method, url, content, headers));
+            return SendRequestOrFailAsync(MakeRequest(method, url, content, headers));
         }
 
-        private HttpRequestMessage MakeRequestInternal(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        public HttpRequestMessage MakeRequest(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
             var req = new HttpRequestMessage(method, url);
             if (content != null)
@@ -536,7 +536,7 @@ namespace JsonHCSNet
             return req;
         }
 
-        private async Task<HttpResponseMessage> SendInternalAsync(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> SendRequestOrFailAsync(HttpRequestMessage request)
         {
             var response = await Client.SendAsync(request);
             if (response.IsSuccessStatusCode)
@@ -559,7 +559,7 @@ namespace JsonHCSNet
 
         private async Task<T> RunInternalAsync<T>(Func<Task<T>> torun)
         {
-            if (Settings.ThrowOnFail)
+            if (!Settings.CatchErrors)
             {
                 return await torun();
             }
@@ -579,7 +579,7 @@ namespace JsonHCSNet
 
         private async Task RunInternalAsync(Func<Task> torun)
         {
-            if (Settings.ThrowOnFail)
+            if (!Settings.CatchErrors)
             {
                 await torun();
             }
@@ -596,31 +596,31 @@ namespace JsonHCSNet
             }
         }
 
-        private string SerializeJson(object data)
+        public string SerializeJson(object data)
         {
             return JsonConvert.SerializeObject(data, Settings.JsonEncodingSettings);
         }
 
-        private static async Task<string> GetStringInternal(HttpResponseMessage response)
+        public static async Task<string> ReadContentAsString(HttpResponseMessage response)
         {
             var result = response?.Content;
             if (result == null) { return null; }
             return await result.ReadAsStringAsync();
         }
 
-        private object DeserializeJson(string json, Type type = null)
+        public object DeserializeJson(string json, Type type = null)
         {
             if (json == null) { return null; }
             return JsonConvert.DeserializeObject(json, type, Settings.JsonDecodingSettings);
         }
 
-        private T DeserializeJson<T>(string json)
+        public T DeserializeJson<T>(string json)
         {
             if (json == null) { return default(T); }
             return JsonConvert.DeserializeObject<T>(json, Settings.JsonDecodingSettings);
         }
 
-        private JObject DeserializeJObject(string json)
+        public JObject DeserializeJObject(string json)
         {
             if (json == null) { return null; }
             return JObject.Parse(json);

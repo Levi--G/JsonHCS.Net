@@ -52,6 +52,11 @@ namespace JsonHCSNet
         /// </summary>
         public bool ThrowOnFail { get; set; }
 
+        /// <summary>
+        /// Catches any errors occuring, handy for fire-and-forget situations
+        /// </summary>
+        public bool CatchErrors { get; set; } = true;
+
         public JsonSerializerSettings JsonDecodingSettings { get; set; }
 
         public JsonSerializerSettings JsonEncodingSettings { get; set; }
