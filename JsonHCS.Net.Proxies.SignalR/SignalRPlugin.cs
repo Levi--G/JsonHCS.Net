@@ -98,10 +98,15 @@ namespace JsonHCSNet.Proxies.Plugins
 
         async Task<HubConnection> CreateOrGetHub(string route, IHubConnectionBuilder builder = null)
         {
-            if (!Cache.TryGetValue(route, out var hub))
+            HubConnection hub;
+            lock (Cache)
             {
-                builder = builder ?? new Microsoft.AspNetCore.SignalR.Client.HubConnectionBuilder();
-                hub = ConnectionBuilder(route, builder);
+                if (!Cache.TryGetValue(route, out hub))
+                {
+                    builder = builder ?? new Microsoft.AspNetCore.SignalR.Client.HubConnectionBuilder();
+                    hub = ConnectionBuilder(route, builder);
+                    Cache[route] = hub;
+                }
             }
             if (hub.State == HubConnectionState.Disconnected && ConnectOnRequest)
             {
