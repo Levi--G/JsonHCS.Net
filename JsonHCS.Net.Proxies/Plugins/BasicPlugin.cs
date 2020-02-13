@@ -45,7 +45,6 @@ namespace JsonHCSNet.Proxies.Plugins
             route = ApplyQueryParameters(route, parameters);
             List<KeyValuePair<string, IEnumerable<string>>> headers = GetHeaders(parameters);
 
-            Task returntask = null;
             var method = FindHttpMethod(invocation.Method, parameters);
             if (method == HttpMethod.Get && targetType == typeof(System.IO.Stream))
             {
@@ -74,7 +73,7 @@ namespace JsonHCSNet.Proxies.Plugins
             {
                 return ((Func<Task<string>>)(async () => { return await JsonHCS.ReadContentAsString(await response); })).Invoke();
             }
-            else if(targetType == typeof(JObject))
+            else if (targetType == typeof(JObject))
             {
                 return ((Func<Task<JObject>>)(async () => { return jsonHCS.DeserializeJObject(await JsonHCS.ReadContentAsString(await response)); })).Invoke();
             }

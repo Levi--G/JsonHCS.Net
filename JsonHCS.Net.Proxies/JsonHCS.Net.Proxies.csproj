@@ -16,13 +16,13 @@
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
     <PackageReleaseNotes>- Introduced plugins!</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
-    <Version>1.5.1</Version>
+    <Version>1.5.3</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.0" />
-    <PackageReference Include="JsonHCS.Net" Version="1.1.1" />
+    <PackageReference Include="JsonHCS.Net" Version="1.1.2" />
   </ItemGroup>
 
 </Project>

@@ -13,9 +13,10 @@ namespace JsonHCSNet.Proxies.ActionResultSupport
     {
         JsonHCS jsonHCS;
 
-        public GenericResult(HttpResponseMessage Response)
+        public GenericResult(HttpResponseMessage Response, JsonHCS jsonHCS)
         {
             response = Response;
+            this.jsonHCS = jsonHCS;
         }
 
         public override bool IsSuccess => Response.IsSuccessStatusCode;

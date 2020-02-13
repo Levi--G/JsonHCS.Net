@@ -42,32 +42,32 @@ namespace JsonHCSNet.Proxies.Plugins
             //implement own usage
             if (targetType.IsConstructedGenericType)
             {
-                returntask = (Task)this.GetType().GetMethod("GetActionResultT").MakeGenericMethod(targetType.GetGenericArguments().First()).Invoke(this, new object[] { returntask });
+                returntask = (Task)this.GetType().GetMethod("GetActionResultT").MakeGenericMethod(targetType.GetGenericArguments().First()).Invoke(this, new object[] { returntask, jsonHCS });
             }
             else if (typeof(ApiDefinition.ActionResult).IsAssignableFrom(targetType))
             {
-                returntask = GetActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>);
+                returntask = GetActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>, jsonHCS);
             }
             else
             {
-                returntask = GetIActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>);
+                returntask = GetIActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>, jsonHCS);
             }
             return returntask;
         }
 
-        async Task<ApiDefinition.ActionResult> GetActionResult(Task<System.Net.Http.HttpResponseMessage> response)
+        async Task<ApiDefinition.ActionResult> GetActionResult(Task<System.Net.Http.HttpResponseMessage> response, JsonHCS jsonHCS)
         {
-            return new ActionResultSupport.GenericResult<object>(await response);
+            return new ActionResultSupport.GenericResult<object>(await response, jsonHCS);
         }
 
-        async Task<ApiDefinition.IActionResult> GetIActionResult(Task<System.Net.Http.HttpResponseMessage> response)
+        async Task<ApiDefinition.IActionResult> GetIActionResult(Task<System.Net.Http.HttpResponseMessage> response, JsonHCS jsonHCS)
         {
-            return new ActionResultSupport.GenericResult<object>(await response);
+            return new ActionResultSupport.GenericResult<object>(await response, jsonHCS);
         }
 
-        public async Task<ApiDefinition.ActionResult<T>> GetActionResultT<T>(Task<System.Net.Http.HttpResponseMessage> response)
+        public async Task<ApiDefinition.ActionResult<T>> GetActionResultT<T>(Task<System.Net.Http.HttpResponseMessage> response, JsonHCS jsonHCS)
         {
-            return new ActionResultSupport.GenericResult<T>(await response);
+            return new ActionResultSupport.GenericResult<T>(await response, jsonHCS);
         }
     }
 }

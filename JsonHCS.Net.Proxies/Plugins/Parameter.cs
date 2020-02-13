@@ -24,7 +24,7 @@ namespace JsonHCSNet.Proxies.Plugins
 
         public override int GetHashCode()
         {
-            return (Name.GetHashCode() << 8) ^ (Type.GetHashCode() << 4) ^ Value.GetHashCode();
+            return (Name.GetHashCode() << 8) ^ (Type.GetHashCode() << 4) ^ (Value?.GetHashCode() ?? 0);
         }
 
         public static bool operator ==(Parameter x, Parameter y)
