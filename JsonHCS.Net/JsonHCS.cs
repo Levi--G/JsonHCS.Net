@@ -116,7 +116,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(() =>
             {
-                return SendRequestAsync(HttpMethod.Get, url, null, headers);
+                return SendRequestOrFailAsync(HttpMethod.Get, url, null, headers);
             });
         }
 
@@ -187,7 +187,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(() =>
             {
-                return SendRequestAsync(HttpMethod.Post, url, data, headers);
+                return SendRequestOrFailAsync(HttpMethod.Post, url, data, headers);
             });
         }
 
@@ -284,7 +284,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(() =>
             {
-                return SendRequestAsync(HttpMethod.Put, url, data, headers);
+                return SendRequestOrFailAsync(HttpMethod.Put, url, data, headers);
             });
         }
 
@@ -380,7 +380,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(() =>
             {
-                return SendRequestAsync(HttpMethod.Delete, url, null, headers);
+                return SendRequestOrFailAsync(HttpMethod.Delete, url, null, headers);
             });
         }
 
@@ -514,9 +514,14 @@ namespace JsonHCSNet
 
         #region Helpers
 
-        public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        public Task<HttpResponseMessage> SendRequestOrFailAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
             return SendRequestOrFailAsync(MakeRequest(method, url, content, headers));
+        }
+
+        public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        {
+            return Client.SendAsync(MakeRequest(method, url, content, headers));
         }
 
         public HttpRequestMessage MakeRequest(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
