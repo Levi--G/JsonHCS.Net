@@ -48,7 +48,7 @@ using (JsonHCS client = new JsonHCS(settings))
 ```cs
 //Use POCO's for data:
 Console.WriteLine("Get<ExpectedResponce> ToString:");
-ExpectedResponce obj = await client.GetJsonAsync<ExpectedResponce>(Url); //Gets json from url and parses as the ExpectedResponce class or returns null if responce not successful
+ExpectedResponce obj = await client.GetJsonAsync<ExpectedResponce>(Url); //Gets json from url and parses as the ExpectedResponce class
 Console.WriteLine(obj);
 
 ///Use dynamic

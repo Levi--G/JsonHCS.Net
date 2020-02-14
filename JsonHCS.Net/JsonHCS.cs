@@ -129,7 +129,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await ReadContentAsString(await GetRawAsync(url, headers));
+                return await ReadContentAsString(await GetRawAsync(url, headers).ConfigureAwait(false)).ConfigureAwait(false);
             });
         }
 
@@ -142,7 +142,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJson(await GetStringAsync(url, headers), type);
+                return DeserializeJson(await GetStringAsync(url, headers).ConfigureAwait(false), type);
             });
         }
 
@@ -156,7 +156,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJson<T>(await GetStringAsync(url, headers));
+                return DeserializeJson<T>(await GetStringAsync(url, headers).ConfigureAwait(false));
             });
         }
 
@@ -169,7 +169,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJObject(await GetStringAsync(url, headers));
+                return DeserializeJObject(await GetStringAsync(url, headers).ConfigureAwait(false));
             });
         }
 
@@ -203,7 +203,7 @@ namespace JsonHCSNet
                 string json = SerializeJson(data);
                 var content = new StringContent(json);
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                return await PostContentAsync(url, content, headers);
+                return await PostContentAsync(url, content, headers).ConfigureAwait(false);
             });
         }
 
@@ -216,7 +216,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await ReadContentAsString(await PostToRawAsync(url, data, headers));
+                return await ReadContentAsString(await PostToRawAsync(url, data, headers).ConfigureAwait(false)).ConfigureAwait(false);
             });
         }
 
@@ -239,7 +239,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJson(await PostToStringAsync(url, data, headers), type);
+                return DeserializeJson(await PostToStringAsync(url, data, headers).ConfigureAwait(false), type);
             });
         }
 
@@ -253,7 +253,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJson<T>(await PostToStringAsync(url, data, headers));
+                return DeserializeJson<T>(await PostToStringAsync(url, data, headers).ConfigureAwait(false));
             });
         }
 
@@ -266,7 +266,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJObject(await PostToStringAsync(url, data, headers));
+                return DeserializeJObject(await PostToStringAsync(url, data, headers).ConfigureAwait(false));
             });
         }
 
@@ -313,7 +313,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await ReadContentAsString(await PutToRawAsync(url, data, headers));
+                return await ReadContentAsString(await PutToRawAsync(url, data, headers).ConfigureAwait(false)).ConfigureAwait(false);
             });
         }
 
@@ -336,7 +336,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJson(await PutToStringAsync(url, data, headers), type);
+                return DeserializeJson(await PutToStringAsync(url, data, headers).ConfigureAwait(false), type);
             });
         }
 
@@ -350,7 +350,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJson<T>(await PutToStringAsync(url, data, headers));
+                return DeserializeJson<T>(await PutToStringAsync(url, data, headers).ConfigureAwait(false));
             });
         }
 
@@ -363,7 +363,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJObject(await PutToStringAsync(url, data, headers));
+                return DeserializeJObject(await PutToStringAsync(url, data, headers).ConfigureAwait(false));
             });
         }
 
@@ -393,7 +393,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await ReadContentAsString(await DeleteToRawAsync(url, headers));
+                return await ReadContentAsString(await DeleteToRawAsync(url, headers).ConfigureAwait(false)).ConfigureAwait(false);
             });
         }
 
@@ -402,9 +402,9 @@ namespace JsonHCSNet
         /// </summary>
         /// <param name="url">The url to DELETE</param>
         /// <returns></returns>
-        public async Task DeleteAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        public Task DeleteAsync(string url, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            await DeleteToRawAsync(url, headers);
+            return DeleteToRawAsync(url, headers);
         }
 
         /// <summary>
@@ -416,7 +416,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJson(await DeleteToStringAsync(url, headers), type);
+                return DeserializeJson(await DeleteToStringAsync(url, headers).ConfigureAwait(false), type);
             });
         }
 
@@ -430,7 +430,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJson<T>(await DeleteToStringAsync(url, headers));
+                return DeserializeJson<T>(await DeleteToStringAsync(url, headers).ConfigureAwait(false));
             });
         }
 
@@ -443,7 +443,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return DeserializeJObject(await DeleteToStringAsync(url, headers));
+                return DeserializeJObject(await DeleteToStringAsync(url, headers).ConfigureAwait(false));
             });
         }
 
@@ -460,7 +460,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await Client.GetStreamAsync(url);
+                return await Client.GetStreamAsync(url).ConfigureAwait(false);
             });
         }
 
@@ -473,7 +473,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await Client.GetByteArrayAsync(url);
+                return await Client.GetByteArrayAsync(url).ConfigureAwait(false);
             });
         }
 
@@ -506,7 +506,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                await PostContentAsync(url, new StreamContent(uploadStream));
+                await PostContentAsync(url, new StreamContent(uploadStream)).ConfigureAwait(false);
             });
         }
 
@@ -543,7 +543,7 @@ namespace JsonHCSNet
 
         public async Task<HttpResponseMessage> SendRequestOrFailAsync(HttpRequestMessage request)
         {
-            var response = await Client.SendAsync(request);
+            var response = await Client.SendAsync(request).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 return response;
@@ -566,13 +566,13 @@ namespace JsonHCSNet
         {
             if (!Settings.CatchErrors)
             {
-                return await torun();
+                return await torun().ConfigureAwait(false);
             }
             else
             {
                 try
                 {
-                    return await torun();
+                    return await torun().ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -586,13 +586,13 @@ namespace JsonHCSNet
         {
             if (!Settings.CatchErrors)
             {
-                await torun();
+                await torun().ConfigureAwait(false);
             }
             else
             {
                 try
                 {
-                    await torun();
+                    await torun().ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -610,7 +610,7 @@ namespace JsonHCSNet
         {
             var result = response?.Content;
             if (result == null) { return null; }
-            return await result.ReadAsStringAsync();
+            return await result.ReadAsStringAsync().ConfigureAwait(false);
         }
 
         public object DeserializeJson(string json, Type type = null)

@@ -56,7 +56,6 @@ namespace Sample
                 Console.WriteLine(JObj["firstName"]);
                 Console.WriteLine("Type: " + JObj["firstName"].GetType().FullName);
                 Console.WriteLine();
-
             }
         }
 
