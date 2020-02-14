@@ -17,7 +17,7 @@ namespace JsonHCSNet.Proxies.Plugins
         public abstract string GetRoute(PluginManager manager, MemberInfo member);
         public abstract IEnumerable<Parameter> GetParameters(PluginManager manager, string route, IInvocation invocation);
         public abstract bool CanHandle(Type targetType, IInvocation invocation);
-        public abstract Task Handle(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation);
+        public abstract Task<T> Handle<T>(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, IInvocation invocation);
 
         protected static List<KeyValuePair<string, IEnumerable<string>>> GetHeaders(List<Parameter> parameters)
         {

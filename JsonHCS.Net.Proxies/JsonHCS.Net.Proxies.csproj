@@ -14,9 +14,10 @@
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
-    <PackageReleaseNotes>- Introduced plugins!</PackageReleaseNotes>
+    <PackageReleaseNotes>- Changed plugin api to generic task
+- Added ConfigureAwait and minimized blocking</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
-    <Version>1.5.3</Version>
+    <Version>1.6.0</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>JsonHCS.png</PackageIcon>

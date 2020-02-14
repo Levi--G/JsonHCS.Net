@@ -38,21 +38,22 @@ namespace JsonHCSNet.Proxies.Plugins
             return true;
         }
 
-        public override Task Handle(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
+        public override async Task<T> Handle<T>(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, IInvocation invocation)
         {
+            var targetType = typeof(T);
             object postArgument = GetPostParameter(parameters);
             route = ApplyRouteParameters(route, parameters);
             route = ApplyQueryParameters(route, parameters);
-            List<KeyValuePair<string, IEnumerable<string>>> headers = GetHeaders(parameters);
+            var headers = GetHeaders(parameters);
 
             var method = FindHttpMethod(invocation.Method, parameters);
             if (method == HttpMethod.Get && targetType == typeof(System.IO.Stream))
             {
-                return jsonHCS.GetStreamAsync(route);
+                return (T)(object)await jsonHCS.GetStreamAsync(route).ConfigureAwait(false);
             }
             else if (method == HttpMethod.Get && targetType == typeof(System.IO.MemoryStream))
             {
-                return jsonHCS.GetMemoryStreamAsync(route);
+                return (T)(object)await jsonHCS.GetMemoryStreamAsync(route).ConfigureAwait(false);
             }
 
             HttpContent content = null;
@@ -63,23 +64,23 @@ namespace JsonHCSNet.Proxies.Plugins
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             }
 
-            var response = jsonHCS.SendRequestAsync(method, route, content, headers);
+            var response = await jsonHCS.SendRequestAsync(method, route, content, headers).ConfigureAwait(false);
 
             if (targetType == typeof(void) || targetType == typeof(HttpResponseMessage))
             {
-                return response;
+                return (T)(object)response;
             }
             else if (HasAttribute(invocation.Method, typeof(RawStringAttribute)))
             {
-                return ((Func<Task<string>>)(async () => { return await JsonHCS.ReadContentAsString(await response.ConfigureAwait(false)).ConfigureAwait(false); })).Invoke();
+                return (T)(object)await JsonHCS.ReadContentAsString(response).ConfigureAwait(false);
             }
             else if (targetType == typeof(JObject))
             {
-                return ((Func<Task<JObject>>)(async () => { return jsonHCS.DeserializeJObject(await JsonHCS.ReadContentAsString(await response.ConfigureAwait(false)).ConfigureAwait(false)); })).Invoke();
+                return (T)(object)jsonHCS.DeserializeJObject(await JsonHCS.ReadContentAsString(response).ConfigureAwait(false));
             }
             else
             {
-                return ConvertTask(((Func<Task<object>>)(async () => { return jsonHCS.DeserializeJson(await JsonHCS.ReadContentAsString(await response.ConfigureAwait(false)).ConfigureAwait(false), targetType); })).Invoke(), targetType);
+                return jsonHCS.DeserializeJson<T>(await JsonHCS.ReadContentAsString(response).ConfigureAwait(false));
             }
         }
 

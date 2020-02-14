@@ -34,23 +34,24 @@ namespace JsonHCSNet.Proxies.Plugins
             return typeof(ApiDefinition.IActionResult).IsAssignableFrom(targetType);
         }
 
-        public override Task Handle(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
+        public override Task<T> Handle<T>(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, IInvocation invocation)
         {
+            var targetType = typeof(T);
             //Get HttpResponseMessage with default implementation
-            Task returntask = manager.Handle(jsonHCS, route, parameters, typeof(System.Net.Http.HttpResponseMessage), invocation);
-
+            var task = manager.Handle<System.Net.Http.HttpResponseMessage>(jsonHCS, route, parameters, invocation);
+            Task<T> returntask;
             //implement own usage
             if (targetType.IsConstructedGenericType)
             {
-                returntask = (Task)this.GetType().GetMethod("GetActionResultT").MakeGenericMethod(targetType.GetGenericArguments().First()).Invoke(this, new object[] { returntask, jsonHCS });
+                returntask = this.GetType().GetMethod("GetActionResultT").MakeGenericMethod(targetType.GetGenericArguments().First()).Invoke(this, new object[] { task, jsonHCS }) as Task<T>;
             }
-            else if (typeof(ApiDefinition.ActionResult).IsAssignableFrom(targetType))
+            else if (typeof(ApiDefinition.ActionResult) == targetType)
             {
-                returntask = GetActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>, jsonHCS);
+                returntask = GetActionResult(task, jsonHCS) as Task<T>;
             }
             else
             {
-                returntask = GetIActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>, jsonHCS);
+                returntask = GetIActionResult(task, jsonHCS) as Task<T>;
             }
             return returntask;
         }
