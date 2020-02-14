@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JsonHCS.Net.Proxies.SignalR\JsonHCS.Net.Proxies.SignalR.csproj" />
+    <ProjectReference Include="..\JsonHCS.Net.Proxies\JsonHCS.Net.Proxies.csproj" />
   </ItemGroup>
 
 </Project>
