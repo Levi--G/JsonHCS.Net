@@ -147,7 +147,7 @@ namespace JsonHCSNet.Proxies.Plugins
 
         public async static Task<T> Convert<T>(Task<object> task)
         {
-            return await task is T value ? value : default(T);
+            return await task.ConfigureAwait(false) is T value ? value : default(T);
         }
     }
 }

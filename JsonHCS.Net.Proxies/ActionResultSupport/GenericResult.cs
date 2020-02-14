@@ -31,17 +31,17 @@ namespace JsonHCSNet.Proxies.ActionResultSupport
 
         public override async Task<JObject> GetJObjectAsync()
         {
-            return jsonHCS.DeserializeJObject(await GetStringAsync());
+            return jsonHCS.DeserializeJObject(await GetStringAsync().ConfigureAwait(false));
         }
 
         public override async Task<T1> GetJsonAsync<T1>()
         {
-            return jsonHCS.DeserializeJson<T1>(await GetStringAsync());
+            return jsonHCS.DeserializeJson<T1>(await GetStringAsync().ConfigureAwait(false));
         }
 
         public override async Task<object> GetJsonAsync()
         {
-            return jsonHCS.DeserializeJson(await GetStringAsync());
+            return jsonHCS.DeserializeJson(await GetStringAsync().ConfigureAwait(false));
         }
 
         public override Task<T> GetResultAsync()

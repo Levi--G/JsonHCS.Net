@@ -71,15 +71,15 @@ namespace JsonHCSNet.Proxies.Plugins
             }
             else if (HasAttribute(invocation.Method, typeof(RawStringAttribute)))
             {
-                return ((Func<Task<string>>)(async () => { return await JsonHCS.ReadContentAsString(await response); })).Invoke();
+                return ((Func<Task<string>>)(async () => { return await JsonHCS.ReadContentAsString(await response.ConfigureAwait(false)).ConfigureAwait(false); })).Invoke();
             }
             else if (targetType == typeof(JObject))
             {
-                return ((Func<Task<JObject>>)(async () => { return jsonHCS.DeserializeJObject(await JsonHCS.ReadContentAsString(await response)); })).Invoke();
+                return ((Func<Task<JObject>>)(async () => { return jsonHCS.DeserializeJObject(await JsonHCS.ReadContentAsString(await response.ConfigureAwait(false)).ConfigureAwait(false)); })).Invoke();
             }
             else
             {
-                return ConvertTask(((Func<Task<object>>)(async () => { return jsonHCS.DeserializeJson(await JsonHCS.ReadContentAsString(await response), targetType); })).Invoke(), targetType);
+                return ConvertTask(((Func<Task<object>>)(async () => { return jsonHCS.DeserializeJson(await JsonHCS.ReadContentAsString(await response.ConfigureAwait(false)).ConfigureAwait(false), targetType); })).Invoke(), targetType);
             }
         }
 

@@ -57,17 +57,17 @@ namespace JsonHCSNet.Proxies.Plugins
 
         async Task<ApiDefinition.ActionResult> GetActionResult(Task<System.Net.Http.HttpResponseMessage> response, JsonHCS jsonHCS)
         {
-            return new ActionResultSupport.GenericResult<object>(await response, jsonHCS);
+            return new ActionResultSupport.GenericResult<object>(await response.ConfigureAwait(false), jsonHCS);
         }
 
         async Task<ApiDefinition.IActionResult> GetIActionResult(Task<System.Net.Http.HttpResponseMessage> response, JsonHCS jsonHCS)
         {
-            return new ActionResultSupport.GenericResult<object>(await response, jsonHCS);
+            return new ActionResultSupport.GenericResult<object>(await response.ConfigureAwait(false), jsonHCS);
         }
 
         public async Task<ApiDefinition.ActionResult<T>> GetActionResultT<T>(Task<System.Net.Http.HttpResponseMessage> response, JsonHCS jsonHCS)
         {
-            return new ActionResultSupport.GenericResult<T>(await response, jsonHCS);
+            return new ActionResultSupport.GenericResult<T>(await response.ConfigureAwait(false), jsonHCS);
         }
     }
 }
