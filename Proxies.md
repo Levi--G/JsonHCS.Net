@@ -109,23 +109,24 @@ Simply create a class that derives from IProxyPlugin:
 		...
         public override bool IsHandler => true;
 		...
-        public override Task Handle(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
+        public override Task<T> Handle<T>(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, IInvocation invocation)
         {
+            var targetType = typeof(T);
             //Get HttpResponseMessage with default implementation
-            Task returntask = manager.Handle(jsonHCS, route, parameters, typeof(System.Net.Http.HttpResponseMessage), invocation);
-
+            var task = manager.Handle<System.Net.Http.HttpResponseMessage>(jsonHCS, route, parameters, invocation);
+            Task<T> returntask;
             //implement own usage
             if (targetType.IsConstructedGenericType)
             {
-                returntask = (Task)this.GetType().GetMethod("GetActionResultT").MakeGenericMethod(targetType.GetGenericArguments().First()).Invoke(this, new object[] { returntask });
+                returntask = this.GetType().GetMethod("GetActionResultT").MakeGenericMethod(targetType.GetGenericArguments().First()).Invoke(this, new object[] { task, jsonHCS }) as Task<T>;
             }
-            else if (typeof(ApiDefinition.ActionResult).IsAssignableFrom(targetType))
+            else if (typeof(ApiDefinition.ActionResult) == targetType)
             {
-                returntask = GetActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>);
+                returntask = GetActionResult(task, jsonHCS) as Task<T>;
             }
             else
             {
-                returntask = GetIActionResult(returntask as Task<System.Net.Http.HttpResponseMessage>);
+                returntask = GetIActionResult(task, jsonHCS) as Task<T>;
             }
             return returntask;
         }
@@ -195,7 +196,7 @@ Example csproj (adjust to your situation):
 
 Now you can build (or package) and reference the Library you made twice, one for the client using JsonHCS api definitions and one for the server (you need to tell Visual studio or MSbuild to define SERVER as a compilation constant). In your client you can use the abstract class to generate the proxy as described earlier, in the server you can inherit your implementation from the abstract class you made and no need to define your routes/attributes again as they are set in the abstract class.
 
-Now when you make changes to your definition both api and client will get compile-time checks of valid api implementation/usage!
+Now when you make changes to your definition both api and client will get compile-time checks of valid api implementation/usage without any custom plugins or code generation!
 
 ## Issues
 

@@ -25,20 +25,20 @@ namespace Sample
 
         static async Task Run()
         {
-            var client = new JsonHCS(new JsonHCS_Settings() { Timeout = 100, ThrowOnFail = true, CatchErrors = false, AddJsonAcceptHeaders = true });
+            var client = new JsonHCS(new JsonHCS_Settings() { Timeout = 10000, ThrowOnFail = true, CatchErrors = false, AddJsonAcceptHeaders = true });
             JsonHCSProxyGenerator pg = new JsonHCSProxyGenerator(client, /*new SignalRPlugin(),*/new ActionResultPlugin(), new BasicPlugin());
 
             //Proxy speed comparison:
             Stopwatch s = new Stopwatch();
             s.Start();
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 400; i++)
             {
                 var all = await client.GetJsonAsync<IEnumerable<string>>("http://localhost:5000/api/values");
-                Console.WriteLine(all.Count());
+                //Console.WriteLine(all.Count());
                 var one = await client.GetJsonAsync("http://localhost:5000/api/values/2");
-                Console.WriteLine(one);
+                //Console.WriteLine(one);
                 await client.PostAsync("http://localhost:5000/api/values", "Value");
-                Console.WriteLine("Done");
+                //Console.WriteLine("Done");
             }
             s.Stop();
             Console.WriteLine("Direct:");
@@ -46,18 +46,18 @@ namespace Sample
             s.Reset();
             s.Start();
             var proxy = pg.CreateClassProxy<ValuesController>("http://localhost:5000/");
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 400; i++)
             {
                 var allrequest = await proxy.Get();
                 if (allrequest.IsSuccess)
                 {
                     var all = await allrequest.GetResultAsync();
-                    Console.WriteLine(all.Count());
+                    //Console.WriteLine(all.Count());
                 }
                 var one = await (await proxy.Get(2)).GetResultAsync();
-                Console.WriteLine(one);
+                //Console.WriteLine(one);
                 var post = await proxy.Post("Value");
-                Console.WriteLine(post.IsSuccess ? "Done" : "Failed");
+                //Console.WriteLine(post.IsSuccess ? "Done" : "Failed");
             }
             s.Stop();
             Console.WriteLine("Proxy:");
