@@ -51,13 +51,13 @@ namespace JsonHCSNet.Proxies.Plugins
             return Plugins.Where(p => p.IsHandler).Any(p => p.CanHandle(targetType, invocation));
         }
 
-        public Task<T> Handle<T>(JsonHCS jsonHCS, string route, List<Parameter> parameters, IInvocation invocation)
+        public Task<T> Handle<T>(JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
         {
             foreach (var plugin in Plugins.Where(p => p.IsHandler))
             {
                 if (plugin.CanHandle(typeof(T), invocation))
                 {
-                    return plugin.Handle<T>(this, jsonHCS, route, parameters, invocation);
+                    return plugin.Handle<T>(this, jsonHCS, route, parameters, targetType, invocation);
                 }
             }
             return Task.FromException<T>(new NotImplementedException("No plugins could handle this request"));

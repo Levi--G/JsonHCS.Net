@@ -17,7 +17,7 @@
     <PackageReleaseNotes>- Changed plugin api to generic task
 - Added ConfigureAwait and minimized blocking</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
-    <Version>1.6.0</Version>
+    <Version>1.6.1</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>JsonHCS.png</PackageIcon>

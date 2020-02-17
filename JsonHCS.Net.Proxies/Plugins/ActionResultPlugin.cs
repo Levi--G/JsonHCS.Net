@@ -34,11 +34,10 @@ namespace JsonHCSNet.Proxies.Plugins
             return typeof(ApiDefinition.IActionResult).IsAssignableFrom(targetType);
         }
 
-        public override Task<T> Handle<T>(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, IInvocation invocation)
+        public override Task<T> Handle<T>(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
         {
-            var targetType = typeof(T);
             //Get HttpResponseMessage with default implementation
-            var task = manager.Handle<System.Net.Http.HttpResponseMessage>(jsonHCS, route, parameters, invocation);
+            var task = manager.Handle<System.Net.Http.HttpResponseMessage>(jsonHCS, route, parameters, typeof(System.Net.Http.HttpResponseMessage), invocation);
             Task<T> returntask;
             //implement own usage
             if (targetType.IsConstructedGenericType)

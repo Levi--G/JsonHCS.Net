@@ -27,41 +27,43 @@ namespace Sample
         {
             var client = new JsonHCS(new JsonHCS_Settings() { Timeout = 10000, ThrowOnFail = true, CatchErrors = false, AddJsonAcceptHeaders = true });
             JsonHCSProxyGenerator pg = new JsonHCSProxyGenerator(client, /*new SignalRPlugin(),*/new ActionResultPlugin(), new BasicPlugin());
-
-            //Proxy speed comparison:
-            Stopwatch s = new Stopwatch();
-            s.Start();
-            for (int i = 0; i < 400; i++)
-            {
-                var all = await client.GetJsonAsync<IEnumerable<string>>("http://localhost:5000/api/values");
-                //Console.WriteLine(all.Count());
-                var one = await client.GetJsonAsync("http://localhost:5000/api/values/2");
-                //Console.WriteLine(one);
-                await client.PostAsync("http://localhost:5000/api/values", "Value");
-                //Console.WriteLine("Done");
-            }
-            s.Stop();
-            Console.WriteLine("Direct:");
-            Console.WriteLine(s.ElapsedMilliseconds);
-            s.Reset();
-            s.Start();
             var proxy = pg.CreateClassProxy<ValuesController>("http://localhost:5000/");
-            for (int i = 0; i < 400; i++)
+            for (int o = 0; o < 4; o++)
             {
-                var allrequest = await proxy.Get();
-                if (allrequest.IsSuccess)
+                //Proxy speed comparison:
+                Stopwatch s = new Stopwatch();
+                s.Start();
+                for (int i = 0; i < 400; i++)
                 {
-                    var all = await allrequest.GetResultAsync();
+                    var all = await client.GetJsonAsync<IEnumerable<string>>("http://localhost:5000/api/values");
                     //Console.WriteLine(all.Count());
+                    var one = await client.GetJsonAsync("http://localhost:5000/api/values/2");
+                    //Console.WriteLine(one);
+                    await client.PostAsync("http://localhost:5000/api/values", "Value");
+                    //Console.WriteLine("Done");
                 }
-                var one = await (await proxy.Get(2)).GetResultAsync();
-                //Console.WriteLine(one);
-                var post = await proxy.Post("Value");
-                //Console.WriteLine(post.IsSuccess ? "Done" : "Failed");
+                s.Stop();
+                Console.WriteLine("Direct:");
+                Console.WriteLine(s.ElapsedMilliseconds);
+                s.Reset();
+                s.Start();
+                for (int i = 0; i < 400; i++)
+                {
+                    var allrequest = await proxy.Get();
+                    if (allrequest.IsSuccess)
+                    {
+                        var all = await allrequest.GetResultAsync();
+                        //Console.WriteLine(all.Count());
+                    }
+                    var one = await (await proxy.Get(2)).GetResultAsync();
+                    //Console.WriteLine(one);
+                    var post = await proxy.Post("Value");
+                    //Console.WriteLine(post.IsSuccess ? "Done" : "Failed");
+                }
+                s.Stop();
+                Console.WriteLine("Proxy:");
+                Console.WriteLine(s.ElapsedMilliseconds);
             }
-            s.Stop();
-            Console.WriteLine("Proxy:");
-            Console.WriteLine(s.ElapsedMilliseconds);
 
             //SignalR plugin demo:
             //var api = pg.CreateClassProxy<API>("http://localhost:5000/");

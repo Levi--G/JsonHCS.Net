@@ -37,10 +37,13 @@ namespace JsonHCSNet.Proxies
                 }
                 else
                 {
-                    TargetType = typeof(System.Net.Http.HttpResponseMessage);
+                    TargetType = typeof(void);
                 }
             }
-            Task returntask = (Task)this.GetType().GetMethod("GetReturnTask", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(TargetType).Invoke(this, new object[] { invocation });
+            Task returntask = (Task)this.GetType()
+                .GetMethod("GetReturnTask", BindingFlags.NonPublic | BindingFlags.Instance)
+                .MakeGenericMethod(TargetType == typeof(void) ? typeof(object) : TargetType)
+                .Invoke(this, new object[] { invocation, TargetType });
 
             if (istask)
             {
@@ -54,11 +57,11 @@ namespace JsonHCSNet.Proxies
             }
         }
 
-        Task<T> GetReturnTask<T>(IInvocation invocation)
+        Task<T> GetReturnTask<T>(IInvocation invocation, Type targetType)
         {
             return Task.Run(() => { return pluginManager.GetRoute(invocation, baseUrl); })
                 .ContinueWith((t) => { return new { route = t.Result, parameters = pluginManager.GetParameters(t.Result, invocation).ToList() }; })
-                .ContinueWith((t) => { return pluginManager.Handle<T>(jsonHCS, t.Result.route, t.Result.parameters, invocation); })
+                .ContinueWith((t) => { return pluginManager.Handle<T>(jsonHCS, t.Result.route, t.Result.parameters, targetType, invocation); })
                 .Unwrap();
         }
     }
