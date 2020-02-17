@@ -9,19 +9,28 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>A simple JsonHCS.Net.Proxies plugin with strongly typed SignalR hub support</Description>
     <Copyright>Levi Gillis @ 2019</Copyright>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/Levi--G/JsonHCS.Net/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
-    <PackageIconUrl>http://animedev.azurewebsites.net/Nuget/JsonHCS.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>SignalR</PackageTags>
     <PackageReleaseNotes>- Fixed connection caching issue</PackageReleaseNotes>
-    <Version>1.0.2</Version>
+    <Version>1.1.0</Version>
+    <PackageIcon>JsonHCS.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JsonHCS.Net.Proxies" Version="1.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0" />
+    <PackageReference Include="JsonHCS.Net.Proxies" Version="1.6.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\JsonHCS.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

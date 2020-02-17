@@ -53,26 +53,21 @@ namespace JsonHCSNet.Proxies.Plugins
             return targetType == typeof(HubConnection) || (targetType.IsConstructedGenericType && (targetType.GetGenericTypeDefinition() == typeof(HubConnection<>) || targetType.GetGenericTypeDefinition() == typeof(HubConnection<,>))) || HasAttribute(invocation.Method, typeof(HubMethodAttribute));
         }
 
-        public override Task Handle(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
+        public override Task<T> Handle<T>(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
         {
             if (targetType == typeof(HubConnection))
             {
-                return CreateOrGetHub(route);
+                return CreateOrGetHub(route) as Task<T>;
             }
             if (targetType.IsConstructedGenericType && (targetType.GetGenericTypeDefinition() == typeof(HubConnection<>) || targetType.GetGenericTypeDefinition() == typeof(HubConnection<,>)))
             {
-                return ConvertTask(CreateOrGetHubObject(route, targetType), targetType);
+                return Convert<T>(CreateOrGetHubObject(route, targetType));
             }
             if (GetAttribute<HubMethodAttribute>(invocation.Method) is HubMethodAttribute att)
             {
-                var task = InvokeOnHub(att, route, targetType, invocation);
-                if (targetType != typeof(void))
-                {
-                    return ConvertTask(task, targetType);
-                }
-                return task;
+                return InvokeOnHub<T>(att, route, targetType, invocation);
             }
-            return Task.FromException(new NotSupportedException("The method invocation was not supported"));
+            return Task.FromException<T>(new NotSupportedException("The method invocation was not supported"));
         }
 
         Dictionary<string, HubConnection> Cache = new Dictionary<string, HubConnection>();
@@ -115,7 +110,7 @@ namespace JsonHCSNet.Proxies.Plugins
             return hub;
         }
 
-        async Task<object> InvokeOnHub(HubMethodAttribute att, string route, Type targetType, IInvocation invocation)
+        async Task<T> InvokeOnHub<T>(HubMethodAttribute att, string route, Type targetType, IInvocation invocation)
         {
             var hub = await CreateOrGetHub(route);
             var methodname = att.MethodName ?? invocation.Method.Name;
@@ -131,14 +126,14 @@ namespace JsonHCSNet.Proxies.Plugins
                 }
                 else
                 {
-                    return await hub.InvokeCoreAsync(methodname, targetType, invocation.Arguments);
+                    return await hub.InvokeCoreAsync<T>(methodname, invocation.Arguments);
                 }
             }
             else
             {
                 throw new NotSupportedException("The chosen SendType was not supported");
             }
-            return null;
+            return default;
         }
     }
 }
