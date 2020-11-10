@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -25,6 +26,9 @@ namespace JsonHCSNet
         protected JsonHCS_Settings Settings { get; set; }
 
         public event EventHandler<Exception> OnErrorCaught;
+
+        private List<IRequestMiddleware> requestMiddlewares;
+        private List<IResponseMiddleware> responseMiddlewares;
 
         #region Constructors
 
@@ -99,6 +103,14 @@ namespace JsonHCSNet
             if (settings.BaseAddress != null)
             {
                 Client.BaseAddress = new Uri(settings.BaseAddress);
+            }
+            if (settings.RequestMiddlewares.Count > 0)
+            {
+                requestMiddlewares = settings.RequestMiddlewares.ToList();
+            }
+            if (settings.ResponseMiddlewares.Count > 0)
+            {
+                responseMiddlewares = settings.ResponseMiddlewares.ToList();
             }
         }
 
@@ -460,7 +472,9 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await Client.GetStreamAsync(url).ConfigureAwait(false);
+                var response = await GetRawAsync(url).ConfigureAwait(false);
+                if (response?.Content == null) { return null; }
+                return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
             });
         }
 
@@ -473,7 +487,9 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                return await Client.GetByteArrayAsync(url).ConfigureAwait(false);
+                var response = await GetRawAsync(url).ConfigureAwait(false);
+                if (response?.Content == null) { return null; }
+                return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
             });
         }
 
@@ -486,10 +502,10 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                var result = await GetStreamAsync(url);
+                var result = await GetStreamAsync(url).ConfigureAwait(false);
                 if (result == null) { return null; }
                 var s = new MemoryStream();
-                await result.CopyToAsync(s);
+                await result.CopyToAsync(s).ConfigureAwait(false);
                 result.Dispose();
                 s.Seek(0, SeekOrigin.Begin);
                 return s;
@@ -521,7 +537,27 @@ namespace JsonHCSNet
 
         public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
         {
-            return Client.SendAsync(MakeRequest(method, url, content, headers));
+            return SendRequestAsync(MakeRequest(method, url, content, headers));
+        }
+
+        public async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
+        {
+            if (requestMiddlewares != null)
+            {
+                foreach (var mw in requestMiddlewares)
+                {
+                    request = await mw.HandleRequestAsync(this, request).ConfigureAwait(false);
+                }
+            }
+            var response = request != null ? await Client.SendAsync(request) : null;
+            if (responseMiddlewares != null)
+            {
+                foreach (var mw in responseMiddlewares)
+                {
+                    response = await mw.HandleResponseAsync(this, request, response).ConfigureAwait(false);
+                }
+            }
+            return response;
         }
 
         public HttpRequestMessage MakeRequest(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
@@ -543,7 +579,7 @@ namespace JsonHCSNet
 
         public async Task<HttpResponseMessage> SendRequestOrFailAsync(HttpRequestMessage request)
         {
-            var response = await Client.SendAsync(request).ConfigureAwait(false);
+            var response = await SendRequestAsync(request).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 return response;

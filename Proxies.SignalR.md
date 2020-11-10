@@ -3,8 +3,6 @@ A simple JsonHCS.Net.Proxies plugin with strongly typed SignalR hub support.
 
 [![NuGet version (JsonHCS.Net.Proxies)](https://img.shields.io/nuget/v/JsonHCS.Net.Proxies.SignalR.svg)](https://www.nuget.org/packages/JsonHCS.Net.Proxies/)
 
-This plugin is currently experimental and might contain numerous bugs!
-
 ## Support
 
 Supported platforms: .Net Standard 2.0+
@@ -77,7 +75,7 @@ Console.WriteLine($"{DateTime.Now.TimeOfDay}: Sending Test 3");
 await hub.Send.Broadcast("Test 3");
 ```
 
-Note: Any connection created will get cached and reused on multiple calls.
+Note: Any connection created will get cached and reused on multiple calls to prevent reconnecting.
 
 A more complete sample can be found in the source.
 

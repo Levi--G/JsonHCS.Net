@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 
 namespace JsonHCSNet
 {
@@ -64,5 +64,15 @@ namespace JsonHCSNet
         public Func<JsonHCS_Settings, HttpClientHandler> ClientHandlerFactory { get; set; } = (settings) => { return new HttpClientHandler(); };
 
         public Func<JsonHCS_Settings, HttpClientHandler, HttpClient> ClientFactory { get; set; } = (settings, handler) => { return new HttpClient(handler); };
+
+        /// <summary>
+        /// Contains middlewares to handle requests before being executed
+        /// </summary>
+        public IList<IRequestMiddleware> RequestMiddlewares { get; set; } = new List<IRequestMiddleware>();
+
+        /// <summary>
+        /// Contains middlewares to handle responses after the requests were executed
+        /// </summary>
+        public IList<IResponseMiddleware> ResponseMiddlewares { get; set; } = new List<IResponseMiddleware>();
     }
 }

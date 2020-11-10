@@ -3,7 +3,7 @@ JsonHCS.Net.Proxies for .Net is a JsonHCS.Net based proxy generator for easy api
 
 [![NuGet version (JsonHCS.Net.Proxies)](https://img.shields.io/nuget/v/JsonHCS.Net.Proxies.svg)](https://www.nuget.org/packages/JsonHCS.Net.Proxies/)
 
-JsonHCS.Net.Proxies recently got some big updates and should support most basic scenario's now, feel free to suggest new features!
+JsonHCS.Net.Proxies got some big updates and should support most basic scenario's now, feel free to suggest new features!
 
 ## Support
 
@@ -29,6 +29,10 @@ ASP.NET attributes:
 
 JsonHCS specific:
 - RawStringAttribute (Returns an unparsed string, default will try to parse the string as json)
+
+## Official Plugins
+
+ - [Proxies.SignalR](https://github.com/Levi--G/JsonHCS.Net/blob/master/Proxies.SignalR.md) for SignalR websocket support.
 
 ## Simple usage
 
