@@ -7,25 +7,24 @@
     <Authors>Levi Gillis</Authors>
     <Company>Levi Gillis</Company>
     <Description>JsonHCS.Net.Proxies for .Net is a JsonHCS.Net based proxy generator for easy and fast (but powerful) api definitions</Description>
-    <Copyright>Levi Gillis @ 2019</Copyright>
+    <Copyright>Levi Gillis @ 2020</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
-    <PackageReleaseNotes>- Changed plugin api to generic task
-- Added ConfigureAwait and minimized blocking</PackageReleaseNotes>
+    <PackageReleaseNotes>- Updated dependencies</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
-    <Version>1.6.1</Version>
+    <Version>1.6.2</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>JsonHCS.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="4.4.0" />
-    <PackageReference Include="JsonHCS.Net" Version="1.2.0" />
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
+    <PackageReference Include="JsonHCS.Net" Version="1.3.0" />
   </ItemGroup>
 
   <ItemGroup>

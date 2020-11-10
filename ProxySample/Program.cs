@@ -93,7 +93,7 @@ namespace Sample
     }
 
     //definition copied from SignalRHub controller
-    //There are 1:1 compatible
+    //They are 1:1 compatible
     [Route("api/[controller]")]
     public abstract class ValuesController : ControllerBase
     {
