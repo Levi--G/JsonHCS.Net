@@ -2,8 +2,8 @@
 using JsonHCSNet.Proxies;
 using JsonHCSNet.Proxies.ApiDefinition;
 using JsonHCSNet.Proxies.Plugins;
-//using JsonHCSNet.Proxies.SignalR;
-//using Microsoft.AspNetCore.SignalR.Client;
+using JsonHCSNet.Proxies.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,8 +26,9 @@ namespace Sample
         static async Task Run()
         {
             var client = new JsonHCS(new JsonHCS_Settings() { Timeout = 10000, ThrowOnFail = true, CatchErrors = false, AddJsonAcceptHeaders = true });
-            JsonHCSProxyGenerator pg = new JsonHCSProxyGenerator(client, /*new SignalRPlugin(),*/new ActionResultPlugin(), new BasicPlugin());
+            JsonHCSProxyGenerator pg = new JsonHCSProxyGenerator(client, new SignalRPlugin(), new ActionResultPlugin(), new BasicPlugin());
             var proxy = pg.CreateClassProxy<ValuesController>("http://localhost:5000/");
+            await Task.Delay(5000);
             for (int o = 0; o < 4; o++)
             {
                 //Proxy speed comparison:
@@ -66,23 +67,23 @@ namespace Sample
             }
 
             //SignalR plugin demo:
-            //var api = pg.CreateClassProxy<API>("http://localhost:5000/");
-            //var hub = await api.Connect();
-            //hub.On.Receive += On_Receive;
-            //var received = 0;
-            //using (hub.On.Message.Subscribe(s => { Console.WriteLine($"{DateTime.Now.TimeOfDay}: Subscription was updated to: {s}"); received++; }, () => Console.WriteLine($"{DateTime.Now.TimeOfDay}: Subscription closed!")))
-            //{
-            //    Console.WriteLine($"{DateTime.Now.TimeOfDay}: Sending Test 1");
-            //    await hub.Send.Broadcast("Test 1");
-            //    Console.WriteLine($"{DateTime.Now.TimeOfDay}: Sending Test 2");
-            //    await hub.Send.Broadcast("Test 2");
-            //    Console.WriteLine($"{DateTime.Now.TimeOfDay}: Sending Test 3");
-            //    await hub.Send.Broadcast("Test 3");
-            //    while (received < 3)
-            //    {
-            //        await Task.Delay(10);
-            //    }
-            //}
+            var api = pg.CreateClassProxy<API>("http://localhost:5000/");
+            var hub = await api.Connect();
+            hub.On.Receive += On_Receive;
+            var received = 0;
+            using (hub.On.Message.Subscribe(s => { Console.WriteLine($"{DateTime.Now.TimeOfDay}: Subscription was updated to: {s}"); received++; }, () => Console.WriteLine($"{DateTime.Now.TimeOfDay}: Subscription closed!")))
+            {
+                Console.WriteLine($"{DateTime.Now.TimeOfDay}: Sending Test 1");
+                await hub.Send.Broadcast("Test 1");
+                Console.WriteLine($"{DateTime.Now.TimeOfDay}: Sending Test 2");
+                await hub.Send.Broadcast("Test 2");
+                Console.WriteLine($"{DateTime.Now.TimeOfDay}: Sending Test 3");
+                await hub.Send.Broadcast("Test 3");
+                while (received < 3)
+                {
+                    await Task.Delay(10);
+                }
+            }
         }
 
         private async static Task On_Receive(string arg)
@@ -140,36 +141,36 @@ namespace Sample
         }
     }
 
-    //public abstract class API
-    //{
-    //    //Connect with strongly typed methods and Events
-    //    [Route("hub")]
-    //    public abstract Task<HubConnection<Client, Events>> Connect();
+    public abstract class API
+    {
+        //Connect with strongly typed methods and Events
+        [Route("hub")]
+        public abstract Task<HubConnection<Client, Events>> Connect();
 
-    //    //Connect a plain HubConnection like normal SignalR
-    //    [Route("hub")]
-    //    public abstract Task<HubConnection> ConnectPlain();
+        //Connect a plain HubConnection like normal SignalR
+        [Route("hub")]
+        public abstract Task<HubConnection> ConnectPlain();
 
-    //    //Connects and call the specified method
-    //    //implied: [HubMethod("Broadcast", SendType.Invoke)]
-    //    [HubMethod]
-    //    public abstract Task Broadcast(string text);
-    //}
+        //Connects and call the specified method
+        //implied: [HubMethod("Broadcast", SendType.Invoke)]
+        [HubMethod]
+        public abstract Task Broadcast(string text);
+    }
 
-    //public interface Client
-    //{
-    //    //Calls his method on the Hub, can be a shared interface to prevent mistakes!
-    //    Task Broadcast(string text);
-    //}
+    public interface Client
+    {
+        //Calls his method on the Hub, can be a shared interface to prevent mistakes!
+        Task Broadcast(string text);
+    }
 
-    //public interface Events
-    //{
-    //    //Triggers when "Receive" gets called from the Hub
-    //    event Func<string, Task> Receive;
+    public interface Events
+    {
+        //Triggers when "Receive" gets called from the Hub
+        event Func<string, Task> Receive;
 
-    //    //System.Reactive compatible IObservable gets updated when Receive gets called
-    //    //Only supports single argument calls for obvious reasons
-    //    [HubMethod("Receive")]
-    //    IObservable<string> Message { get; }
-    //}
+        //System.Reactive compatible IObservable gets updated when Receive gets called
+        //Only supports single argument calls for obvious reasons
+        [HubMethod("Receive")]
+        IObservable<string> Message { get; }
+    }
 }
