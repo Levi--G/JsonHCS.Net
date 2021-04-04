@@ -34,10 +34,13 @@ namespace JsonHCSNet.Proxytests
             public abstract Task<Post[]> GetPosts([FromQuery] int userId);
 
             [HttpPost]
-            public abstract Task<Post> AddPost([FromBody]PostBase value);
+            public abstract Task<Post> AddPost([FromBody] PostBase value);
+
+            [HttpPost]
+            public abstract Task<Post> AddPostForm([FromForm] string Title, [FromForm] string Body, [FromForm] int UserId);
 
             [HttpPut("{id}")]
-            public abstract Task<Post> Put([FromBody]Post value, int id);
+            public abstract Task<Post> Put([FromBody] Post value, int id);
 
             [HttpDelete("{id}")]
             public abstract Task Delete(int id);
@@ -138,6 +141,12 @@ namespace JsonHCSNet.Proxytests
             Assert.IsTrue(GetTestAPI().GetAllMin().Result.Length == 100);
             Assert.IsTrue(this.GetTestAPI().GetPostsMin(2).Result[0].UserId == 2);
             Assert.IsTrue(GetTestAPI().AddPostMin(new API.PostBase() { Body = "", Title = "Title", UserId = 1 }).Result.Id == 101);
+        }
+
+        [TestMethod]
+        public void TestFormParameters()
+        {
+            Assert.IsTrue(GetTestAPI().AddPostForm("Title", "", 1).Result.Id == 101);
         }
     }
 }

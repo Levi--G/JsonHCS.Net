@@ -40,7 +40,6 @@ namespace JsonHCSNet.Proxies.Plugins
 
         public override async Task<T> Handle<T>(PluginManager manager, JsonHCS jsonHCS, string route, List<Parameter> parameters, Type targetType, IInvocation invocation)
         {
-            object postArgument = GetPostParameter(parameters);
             route = ApplyRouteParameters(route, parameters);
             route = ApplyQueryParameters(route, parameters);
             var headers = GetHeaders(parameters);
@@ -55,13 +54,7 @@ namespace JsonHCSNet.Proxies.Plugins
                 return (T)(object)await jsonHCS.GetMemoryStreamAsync(route).ConfigureAwait(false);
             }
 
-            HttpContent content = null;
-
-            if (postArgument != null)
-            {
-                content = new StringContent(jsonHCS.SerializeJson(postArgument));
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            }
+            GetBodyOrFormContent(jsonHCS, parameters, out HttpContent content);
 
             var response = await jsonHCS.SendRequestAsync(method, route, content, headers).ConfigureAwait(false);
 

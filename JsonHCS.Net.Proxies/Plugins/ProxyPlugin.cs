@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace JsonHCSNet.Proxies.Plugins
             return route;
         }
 
-        protected static object GetPostParameter(List<Parameter> parameters)
+        protected static object GetBodyContent(List<Parameter> parameters)
         {
             var postParameters = parameters.Where(p => p.Type == SourceType.Body);
             object postArgument;
@@ -87,6 +88,31 @@ namespace JsonHCSNet.Proxies.Plugins
             }
 
             return postArgument;
+        }
+
+        protected static IEnumerable<KeyValuePair<string, string>> GetFormContent(List<Parameter> parameters)
+        {
+            return parameters.Where(p => p.Type == SourceType.Form)
+                .Select(p => new KeyValuePair<string, string>(p.Name, p.Value.ToString()));
+        }
+
+        protected static bool GetBodyOrFormContent(JsonHCS jsonHCS, List<Parameter> parameters, out HttpContent content)
+        {
+            var bodyContent = GetBodyContent(parameters);
+            if (bodyContent != null)
+            {
+                content = new StringContent(jsonHCS.SerializeJson(bodyContent));
+                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                return true;
+            }
+            var formContent = GetFormContent(parameters);
+            if (formContent.Count() > 0)
+            {
+                content = new FormUrlEncodedContent(formContent);
+                return true;
+            }
+            content = null;
+            return false;
         }
 
         protected static bool HasAttribute(ICustomAttributeProvider data, Type type)
