@@ -15,7 +15,7 @@ Supported api definitions:
 - Interface
 
 The following attributes are recognised and used for api generation:
-ASP.NET attributes:
+ASP.NET (core) attributes:
 - RouteAttribute
 - HttpGetAttribute
 - HttpPostAttribute
@@ -23,7 +23,7 @@ ASP.NET attributes:
 - HttpDeleteAttribute
 - FromBodyAttribute
 - FromQueryAttribute
-- FromFormAttribute (TBD)
+- FromFormAttribute
 - FromHeaderAttribute
 - FromRouteAttribute
 
