@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ namespace JsonHCSNet.Tests
         {
             return new JsonHCS(new JsonHCS_Settings()
             {
+                CatchErrors = false,
                 ThrowOnFail = true,
                 BaseAddress = "https://jsonplaceholder.typicode.com/posts/"
             });
@@ -60,6 +62,30 @@ namespace JsonHCSNet.Tests
         public void TestDelete()
         {
             this.GetJsonHCS().DeleteAsync("2").Wait();
+        }
+
+        [TestMethod]
+        public void TestStream()
+        {
+            var stream = this.GetJsonHCS().GetStreamAsync("2").Result;
+            Assert.IsFalse(stream.GetType() == typeof(MemoryStream));
+            using (var sr = new StreamReader(stream))
+            {
+                var s = sr.ReadToEnd();
+                GetJsonHCS().DeserializeJson(s);
+            }
+        }
+
+        [TestMethod]
+        public void TestMemoryStream()
+        {
+            var stream = this.GetJsonHCS().GetMemoryStreamAsync("2").Result;
+            Assert.IsTrue(stream.GetType() == typeof(MemoryStream));
+            using (var sr = new StreamReader(stream))
+            {
+                var s = sr.ReadToEnd();
+                GetJsonHCS().DeserializeJson(s);
+            }
         }
     }
 }

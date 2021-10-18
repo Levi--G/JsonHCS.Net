@@ -472,7 +472,7 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                var response = await GetRawAsync(url).ConfigureAwait(false);
+                var response = await SendRequestOrFailAsync(HttpMethod.Get, url, null, null, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                 if (response?.Content == null) { return null; }
                 return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
             });
@@ -487,9 +487,11 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                var response = await GetRawAsync(url).ConfigureAwait(false);
-                if (response?.Content == null) { return null; }
-                return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                using (var response = await GetRawAsync(url).ConfigureAwait(false))
+                {
+                    if (response?.Content == null) { return null; }
+                    return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                }
             });
         }
 
@@ -502,13 +504,14 @@ namespace JsonHCSNet
         {
             return RunInternalAsync(async () =>
             {
-                var result = await GetStreamAsync(url).ConfigureAwait(false);
-                if (result == null) { return null; }
-                var s = new MemoryStream();
-                await result.CopyToAsync(s).ConfigureAwait(false);
-                result.Dispose();
-                s.Seek(0, SeekOrigin.Begin);
-                return s;
+                using (var result = await GetStreamAsync(url).ConfigureAwait(false))
+                {
+                    if (result == null) { return null; }
+                    var s = new MemoryStream();
+                    await result.CopyToAsync(s).ConfigureAwait(false);
+                    s.Seek(0, SeekOrigin.Begin);
+                    return s;
+                }
             });
         }
 
@@ -530,17 +533,17 @@ namespace JsonHCSNet
 
         #region Helpers
 
-        public Task<HttpResponseMessage> SendRequestOrFailAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        public Task<HttpResponseMessage> SendRequestOrFailAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead)
         {
-            return SendRequestOrFailAsync(MakeRequest(method, url, content, headers));
+            return SendRequestOrFailAsync(MakeRequest(method, url, content, headers), httpCompletionOption);
         }
 
-        public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null)
+        public Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string url, HttpContent content = null, IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers = null, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead)
         {
-            return SendRequestAsync(MakeRequest(method, url, content, headers));
+            return SendRequestAsync(MakeRequest(method, url, content, headers), httpCompletionOption);
         }
 
-        public async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead)
         {
             if (requestMiddlewares != null)
             {
@@ -549,7 +552,7 @@ namespace JsonHCSNet
                     request = await mw.HandleRequestAsync(this, request).ConfigureAwait(false);
                 }
             }
-            var response = request != null ? await Client.SendAsync(request) : null;
+            var response = request != null ? await Client.SendAsync(request, httpCompletionOption) : null;
             if (responseMiddlewares != null)
             {
                 foreach (var mw in responseMiddlewares)
@@ -577,9 +580,9 @@ namespace JsonHCSNet
             return req;
         }
 
-        public async Task<HttpResponseMessage> SendRequestOrFailAsync(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> SendRequestOrFailAsync(HttpRequestMessage request, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead)
         {
-            var response = await SendRequestAsync(request).ConfigureAwait(false);
+            var response = await SendRequestAsync(request, httpCompletionOption).ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 return response;
@@ -644,9 +647,13 @@ namespace JsonHCSNet
 
         public static async Task<string> ReadContentAsString(HttpResponseMessage response)
         {
-            var result = response?.Content;
-            if (result == null) { return null; }
-            return await result.ReadAsStringAsync().ConfigureAwait(false);
+            if (response == null) { return null; }
+            using (var r = response)
+            {
+                var result = r.Content;
+                if (result == null) { return null; }
+                return await result.ReadAsStringAsync().ConfigureAwait(false);
+            }
         }
 
         public object DeserializeJson(string json, Type type = null)
