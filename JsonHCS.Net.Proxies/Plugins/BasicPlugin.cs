@@ -56,7 +56,9 @@ namespace JsonHCSNet.Proxies.Plugins
 
             GetBodyOrFormContent(jsonHCS, parameters, out HttpContent content);
 
-            var response = await jsonHCS.SendRequestAsync(method, route, content, headers).ConfigureAwait(false);
+            var completion = HasAttribute(invocation.Method, typeof(HeaderHttpCompletionOptionAttribute)) ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
+
+            var response = await jsonHCS.SendRequestAsync(method, route, content, headers, completion).ConfigureAwait(false);
 
             if (targetType == typeof(void) || targetType == typeof(HttpResponseMessage))
             {

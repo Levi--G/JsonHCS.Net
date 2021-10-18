@@ -3,6 +3,7 @@ using JsonHCSNet.Proxies;
 using JsonHCSNet.Proxies.ApiDefinition;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -27,6 +28,10 @@ namespace JsonHCSNet.Proxytests
 
             [Route("{id}")]
             public abstract IActionResult GetIAction(int id);
+
+            [Route("{id}")]
+            [HeaderHttpCompletionOption]
+            public abstract IActionResult GetIActionHeader(int id);
 
             [Route("{id}")]
             public abstract ActionResult<Post> GetAction(int id);
@@ -147,6 +152,20 @@ namespace JsonHCSNet.Proxytests
         public void TestFormParameters()
         {
             Assert.IsTrue(GetTestAPI().AddPostForm("Title", "", 1).Result.Id == 101);
+        }
+
+        [TestMethod]
+        public void TestHeaderAttribute()
+        {
+            var result = GetTestAPI().GetAction(3);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.IsTrue(result.GetStreamAsync().Result.GetType() == typeof(MemoryStream));
+            var result2 = GetTestAPI().GetIActionHeader(3);
+            Assert.IsTrue(result2.IsSuccess);
+            Assert.IsTrue(result2.GetStreamAsync().Result.GetType() != typeof(MemoryStream));
+            var result3 = GetTestAPI().GetIActionHeader(3);
+            Assert.IsTrue(result3.IsSuccess);
+            Assert.IsTrue(result3.GetMemoryStreamAsync().Result.GetType() == typeof(MemoryStream));
         }
     }
 }

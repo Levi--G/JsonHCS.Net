@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -52,6 +53,24 @@ namespace JsonHCSNet.Proxies.ActionResultSupport
         public override Task<string> GetStringAsync()
         {
             return JsonHCS.ReadContentAsString(Response);
+        }
+
+        public override async Task<Stream> GetStreamAsync()
+        {
+            if (Response?.Content == null) { return null; }
+            return await Response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        }
+
+        public override async Task<MemoryStream> GetMemoryStreamAsync()
+        {
+            using (var result = await GetStreamAsync().ConfigureAwait(false))
+            {
+                if (result == null) { return null; }
+                var s = new MemoryStream();
+                await result.CopyToAsync(s).ConfigureAwait(false);
+                s.Seek(0, SeekOrigin.Begin);
+                return s;
+            }
         }
     }
 }

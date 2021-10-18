@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -20,6 +21,8 @@ namespace JsonHCSNet.Proxies.ApiDefinition
         Task<object> GetJsonAsync();
         Task<JObject> GetJObjectAsync();
         Task<string> GetStringAsync();
+        Task<Stream> GetStreamAsync();
+        Task<MemoryStream> GetMemoryStreamAsync();
     }
 
     public abstract class ActionResult : IActionResult
@@ -33,6 +36,8 @@ namespace JsonHCSNet.Proxies.ApiDefinition
         public abstract Task<object> GetJsonAsync();
         public abstract Task<JObject> GetJObjectAsync();
         public abstract Task<string> GetStringAsync();
+        public abstract Task<Stream> GetStreamAsync();
+        public abstract Task<MemoryStream> GetMemoryStreamAsync();
     }
 
     public abstract class ActionResult<T> : ActionResult
