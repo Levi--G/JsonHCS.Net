@@ -1,38 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.5;netstandard2.1;netcoreapp3.1;net5</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1;net5;net6.0;net8.0</TargetFrameworks>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Levi Gillis</Authors>
     <Company>Levi Gillis</Company>
     <Description>JsonHCS.Net.Proxies for .Net is a JsonHCS.Net based proxy generator for easy and fast (but powerful) api definitions</Description>
-    <Copyright>Levi Gillis @ 2018-2021</Copyright>
+    <Copyright>Levi Gillis @ 2018-2024</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
-    <PackageReleaseNotes>-Added attribute to control HTTPCompletionOption
--Added returning Streams on ActionResult
--Fixed requesting to return stream would still return MemoryStream (From JsonHCS base lib)</PackageReleaseNotes>
+    <PackageReleaseNotes>-Added net6 and net8 targets
+      -Updated dependencies</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
-    <Version>1.8.0</Version>
+    <Version>1.8.1</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>JsonHCS.png</PackageIcon>
+    <PackageReadmeFile>Proxies.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="JsonHCS.Net" Version="1.4.0" />
+    <PackageReference Include="Castle.Core" Version="5.1.1" />
+    <PackageReference Include="JsonHCS.Net" Version="1.4.1" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\JsonHCS.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\Proxies.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

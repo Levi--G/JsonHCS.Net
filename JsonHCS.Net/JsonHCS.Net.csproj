@@ -1,37 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFrameworks>netstandard1.1;net6.0;net8.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Levi Gillis</Authors>
     <Company>Levi Gillis</Company>
-    <Copyright>Levi Gillis @ 2018-2021</Copyright>
+    <Copyright>Levi Gillis @ 2018-2024</Copyright>
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>-Fixed GetStream Actually returning the original stream instead of a copy
--Added tests for the GetStream and GetMemoryStream methods
--Now cleanly disposing internally used responses</PackageReleaseNotes>
+    <PackageReleaseNotes>-Added net6 and net8 targets</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageTags>Json HTTP Get Post WebClient</PackageTags>
     <Description>JsonHCS (Json Http Client Simplified) for .Net is a HTTP Client wrapper with Json support</Description>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <RootNamespace>JsonHCSNet</RootNamespace>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>JsonHCS.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\JsonHCS.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

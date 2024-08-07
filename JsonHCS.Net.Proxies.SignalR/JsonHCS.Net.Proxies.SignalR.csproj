@@ -1,35 +1,43 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net6.0;net8.0</TargetFrameworks>
     <RootNamespace>JsonHCSNet.Proxies.SignalR</RootNamespace>
     <Authors>Levi Gillis</Authors>
     <Company>Levi Gillis</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Description>A simple JsonHCS.Net.Proxies plugin with strongly typed SignalR hub support</Description>
-    <Copyright>Levi Gillis @ 2020</Copyright>
+    <Copyright>Levi Gillis @ 2020-2024</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>SignalR</PackageTags>
-    <PackageReleaseNotes>- Updated dependencies</PackageReleaseNotes>
-    <Version>1.1.1</Version>
+    <PackageReleaseNotes>
+      -Added net6 and net8 targets
+      -Updated dependencies
+    </PackageReleaseNotes>
+    <Version>1.1.2</Version>
     <PackageIcon>JsonHCS.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>Proxies.SignalR.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JsonHCS.Net.Proxies" Version="1.6.2" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.0" />
+    <PackageReference Include="JsonHCS.Net.Proxies" Version="1.8.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.7" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\JsonHCS.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\Proxies.SignalR.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 
