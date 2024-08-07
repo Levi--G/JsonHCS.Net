@@ -19,9 +19,10 @@ namespace JsonHCSNet.Proxies.Plugins
 
         public string GetRoute(IInvocation invocation, string baseUrl)
         {
+            var TargetType = invocation.TargetType ?? invocation.Method.DeclaringType;
             var route = new List<string>();
             {
-                Type target = invocation.TargetType;
+                Type target = TargetType;
                 while (target != null)
                 {
                     route.Add(GetRoute(target.GetTypeInfo()));
@@ -32,7 +33,10 @@ namespace JsonHCSNet.Proxies.Plugins
             route.Reverse();
             route.Add(GetRoute(invocation.Method));
             var fullroute = string.Join("/", route.Where(s => s != null).Select(s => s.Trim('/')));
-            fullroute = fullroute.Replace("[controller]", invocation.TargetType.Name.Replace("Controller", ""));
+            if (TargetType != null)
+            {
+                fullroute = fullroute.Replace("[controller]", TargetType.Name.Replace("Controller", ""));
+            }
             return fullroute;
         }
 

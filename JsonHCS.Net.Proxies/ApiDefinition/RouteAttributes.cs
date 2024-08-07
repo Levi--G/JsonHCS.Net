@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JsonHCSNet.Proxies.ApiDefinition
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Interface, AllowMultiple = true, Inherited = true)]
     public class RouteAttribute : Attribute
     {
         public string Template { get; set; }
