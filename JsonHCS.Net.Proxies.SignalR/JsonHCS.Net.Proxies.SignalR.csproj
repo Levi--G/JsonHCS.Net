@@ -19,15 +19,15 @@
       -Added net6 and net8 targets
       -Updated dependencies
     </PackageReleaseNotes>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <PackageIcon>JsonHCS.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>Proxies.SignalR.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JsonHCS.Net.Proxies" Version="1.8.1" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.7" />
+    <PackageReference Include="JsonHCS.Net.Proxies" Version="1.8.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>

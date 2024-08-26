@@ -27,7 +27,7 @@ namespace Sample
         {
             var client = new JsonHCS(new JsonHCS_Settings() { Timeout = 10000, ThrowOnFail = true, CatchErrors = false, AddJsonAcceptHeaders = true });
             JsonHCSProxyGenerator pg = new JsonHCSProxyGenerator(client, new SignalRPlugin(), new ActionResultPlugin(), new BasicPlugin());
-            var proxy = pg.CreateClassProxy<ValuesController>("http://localhost:5000/");
+            var proxy = pg.CreateInterfaceProxy<ValuesController>("http://localhost:5000/");
             await Task.Delay(5000);
             for (int o = 0; o < 4; o++)
             {
@@ -95,27 +95,49 @@ namespace Sample
 
     //definition copied from SignalRHub controller
     //They are 1:1 compatible
+    //[Route("api/[controller]")]
+    //public abstract class ValuesController : ControllerBase
+    //{
+    //    // GET api/values
+    //    public abstract Task<ActionResult<IEnumerable<string>>> Get();
+
+    //    // GET api/values/5
+    //    [HttpGet("{id}")]
+    //    public abstract Task<ActionResult<string>> Get(int id);
+
+    //    // POST api/values
+    //    [HttpPost]
+    //    public abstract Task<IActionResult> Post([FromBody] string value);
+
+    //    // PUT api/values/5
+    //    [HttpPut("{id}")]
+    //    public abstract Task<IActionResult> Put(int id, [FromBody] string value);
+
+    //    // DELETE api/values/5
+    //    [HttpDelete("{id}")]
+    //    public abstract Task<IActionResult> Delete(int id);
+    //}
     [Route("api/[controller]")]
-    public abstract class ValuesController : ControllerBase
+    public interface ValuesController
     {
         // GET api/values
-        public abstract Task<ActionResult<IEnumerable<string>>> Get();
+        Task<ActionResult<IEnumerable<string>>> Get();
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public abstract Task<ActionResult<string>> Get(int id);
+        Task<ActionResult<string>> Get(int id);
 
         // POST api/values
         [HttpPost]
-        public abstract Task<IActionResult> Post([FromBody] string value);
+        Task<IActionResult> Post([FromBody] string value);
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public abstract Task<IActionResult> Put(int id, [FromBody] string value);
+        Task<IActionResult> Put(int id, [FromBody] string value);
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public abstract Task<IActionResult> Delete(int id);
+        Task<IActionResult> Delete(int id);
     }
 
     //the old sample

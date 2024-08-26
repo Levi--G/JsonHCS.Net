@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29728.190
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonHCS.Net", "JsonHCS.Net\JsonHCS.Net.csproj", "{98E45BEA-D7B2-4541-8835-02E09F6A7CE4}"
 EndProject
@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonHCS.Net.Tests", "JsonHC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonHCS.Net.Proxies.SignalR", "JsonHCS.Net.Proxies.SignalR\JsonHCS.Net.Proxies.SignalR.csproj", "{08223199-6B26-403B-AAFC-C5C9AB61042C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalRHub", "SignalRHub\SignalRHub.csproj", "{3AF84412-F4BC-406E-9F44-D9813C840F5D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRHub", "SignalRHub\SignalRHub.csproj", "{5AD02D32-01F4-41EB-A7FD-7BB44B59DCE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,10 +61,10 @@ Global
 		{08223199-6B26-403B-AAFC-C5C9AB61042C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08223199-6B26-403B-AAFC-C5C9AB61042C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08223199-6B26-403B-AAFC-C5C9AB61042C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3AF84412-F4BC-406E-9F44-D9813C840F5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3AF84412-F4BC-406E-9F44-D9813C840F5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3AF84412-F4BC-406E-9F44-D9813C840F5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3AF84412-F4BC-406E-9F44-D9813C840F5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AD02D32-01F4-41EB-A7FD-7BB44B59DCE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AD02D32-01F4-41EB-A7FD-7BB44B59DCE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AD02D32-01F4-41EB-A7FD-7BB44B59DCE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AD02D32-01F4-41EB-A7FD-7BB44B59DCE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
