@@ -47,7 +47,18 @@ namespace JsonHCSNet.Proxies.Plugins
 
         public IEnumerable<Parameter> GetParameters(string route, IInvocation invocation)
         {
-            return Plugins.Where(p => p.IsParameterProvider).SelectMany(p => p.GetParameters(this, route, invocation)).Distinct();
+            List<Parameter> parameters = new List<Parameter>();
+            foreach (var plugin in Plugins.Where(p => p.IsParameterProvider))
+            {
+                foreach (var parameter in plugin.GetParameters(this, route, invocation))
+                {
+                    if (!parameters.Any(existingparameter => existingparameter.Name == parameter.Name))
+                    {
+                        parameters.Add(parameter);
+                    }
+                }
+            }
+            return parameters;
         }
 
         public bool CanHandle(Type targetType, IInvocation invocation)

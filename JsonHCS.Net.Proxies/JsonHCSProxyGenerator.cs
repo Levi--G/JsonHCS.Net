@@ -17,7 +17,7 @@ namespace JsonHCSNet.Proxies
             this.jsonHCS = jsonHCS ?? new JsonHCS(true);
             if (plugins.Length == 0)
             {
-                plugins = new IProxyPlugin[] { new ActionResultPlugin(), new BasicPlugin() };
+                plugins = new IProxyPlugin[] { new FormFilePlugin(), new ActionResultPlugin(), new BasicPlugin() };
             }
             proxyGenerator = new ProxyGenerator();
             pluginManager = new PluginManager(plugins);

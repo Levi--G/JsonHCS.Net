@@ -99,6 +99,11 @@ namespace JsonHCSNet.Proxies.Plugins
         protected static bool GetBodyOrFormContent(JsonHCS jsonHCS, List<Parameter> parameters, out HttpContent content)
         {
             var bodyContent = GetBodyContent(parameters);
+            if (bodyContent is HttpContent httpcontent)
+            {
+                content = httpcontent;
+                return true;
+            }
             if (bodyContent != null)
             {
                 content = new StringContent(jsonHCS.SerializeJson(bodyContent));
@@ -130,7 +135,7 @@ namespace JsonHCSNet.Proxies.Plugins
             return GetAttributes(data, name).FirstOrDefault();
         }
 
-        protected static T GetAttribute<T>(MemberInfo data) where T : Attribute
+        protected static T GetAttribute<T>(ICustomAttributeProvider data) where T : Attribute
         {
             return (T)data.GetCustomAttributes(typeof(T), false).FirstOrDefault();
         }
@@ -143,6 +148,10 @@ namespace JsonHCSNet.Proxies.Plugins
         protected static string GetParameterName(string attribute, ParameterInfo parameter)
         {
             var a = GetAttribute(parameter, attribute);
+            if (a == null)
+            {
+                return parameter.Name;
+            }
             var name = a.GetType().GetProperty("Name")?.GetValue(a) as string ?? parameter.Name;
             return name;
         }

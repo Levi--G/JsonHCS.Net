@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1;net5;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net480;netstandard2.0;netstandard2.1;netcoreapp3.1;net5;net6.0;net8.0</TargetFrameworks>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Levi Gillis</Authors>
@@ -14,9 +14,9 @@
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Json HTTP Get Post WebClient Proxy</PackageTags>
-    <PackageReleaseNotes>-Fix interface routes not behaving the same as classes</PackageReleaseNotes>
+    <PackageReleaseNotes>-Added IFormFile support and plugin for uploading files</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
-    <Version>1.8.2</Version>
+    <Version>1.9.0</Version>
     <RootNamespace>JsonHCSNet.Proxies</RootNamespace>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>JsonHCS.png</PackageIcon>
