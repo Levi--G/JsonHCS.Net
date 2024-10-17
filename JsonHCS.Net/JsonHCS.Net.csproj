@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net480;netstandard1.1;net6.0;net8.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Levi Gillis</Authors>
@@ -9,13 +9,13 @@
     <Copyright>Levi Gillis @ 2018-2024</Copyright>
     <RepositoryUrl>https://github.com/Levi--G/JsonHCS.Net.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>-Added net6 and net8 targets</PackageReleaseNotes>
+    <PackageReleaseNotes>-Added net480 target</PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageTags>Json HTTP Get Post WebClient</PackageTags>
     <Description>JsonHCS (Json Http Client Simplified) for .Net is a HTTP Client wrapper with Json support</Description>
     <PackageProjectUrl>https://github.com/Levi--G/JsonHCS.Net</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
-    <Version>1.4.1</Version>
+    <Version>1.4.2</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <RootNamespace>JsonHCSNet</RootNamespace>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -25,6 +25,10 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
